@@ -10,6 +10,9 @@ import { Button } from "@/components/ui/button";
 import { LogOut, Wallet, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import stadium from "@/assets/stadium-hero.jpg";
+import { Footer } from "@/components/Footer";
+import { LiveData } from "@/components/LiveData";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Index = () => {
   const [session, setSession] = useState<Session | null>(null);
@@ -149,15 +152,26 @@ const Index = () => {
 
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
           <section>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Premier League Teams</h2>
-              <span className="text-xs text-muted-foreground">{items.length} selected</span>
-            </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-              {teams.map((t) => (
-                <TeamCard key={t.id} team={t} selected={selectedIds.has(t.id)} onClick={() => toggleTeam(t.id)} />
-              ))}
-            </div>
+            <Tabs defaultValue="teams">
+              <TabsList className="mb-4">
+                <TabsTrigger value="teams">Teams</TabsTrigger>
+                <TabsTrigger value="live">Live · Fixtures & Table</TabsTrigger>
+              </TabsList>
+              <TabsContent value="teams">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Premier League Teams</h2>
+                  <span className="text-xs text-muted-foreground">{items.length} selected</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                  {teams.map((t) => (
+                    <TeamCard key={t.id} team={t} selected={selectedIds.has(t.id)} onClick={() => toggleTeam(t.id)} />
+                  ))}
+                </div>
+              </TabsContent>
+              <TabsContent value="live">
+                <LiveData />
+              </TabsContent>
+            </Tabs>
           </section>
 
           <BetSlip
@@ -169,6 +183,7 @@ const Index = () => {
           />
         </div>
       </main>
+      <Footer />
 
       {user && (
         <WalletModal
