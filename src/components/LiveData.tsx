@@ -35,19 +35,14 @@ export const LiveData = () => {
     setLoading(true);
     setError(null);
     try {
+      const base = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/epl-data`;
+      const headers = { Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` };
       const [s, m] = await Promise.all([
-        supabase.functions.invoke("epl-data", { body: null, method: "GET" as never }).then(() =>
-          fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/epl-data?resource=standings`,
-            { headers: { Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` } }
-          ).then((r) => r.json())
-        ),
-        fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/epl-data?resource=matches`,
-          { headers: { Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` } }
-        ).then((r) => r.json()),
+        fetch(`${base}?resource=standings`, { headers }).then((r) => r.json()),
+        fetch(`${base}?resource=matches`, { headers }).then((r) => r.json()),
       ]);
       if (s?.error) throw new Error(s.error);
+      if (m?.error) throw new Error(m.error);
       setStandings(s?.standings?.[0]?.table ?? []);
       setMatches((m?.matches ?? []).slice(0, 12));
     } catch (e) {
