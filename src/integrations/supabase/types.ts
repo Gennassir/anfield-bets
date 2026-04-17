@@ -14,39 +14,240 @@ export type Database = {
   }
   public: {
     Tables: {
+      bet_selections: {
+        Row: {
+          bet_id: string
+          created_at: string
+          id: string
+          market: string
+          match_id: number
+          odds: number
+          pick: string
+          status: string
+        }
+        Insert: {
+          bet_id: string
+          created_at?: string
+          id?: string
+          market: string
+          match_id: number
+          odds: number
+          pick: string
+          status?: string
+        }
+        Update: {
+          bet_id?: string
+          created_at?: string
+          id?: string
+          market?: string
+          match_id?: number
+          odds?: number
+          pick?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bet_selections_bet_id_fkey"
+            columns: ["bet_id"]
+            isOneToOne: false
+            referencedRelation: "bets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bet_selections_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bets: {
+        Row: {
+          bet_type: string
+          created_at: string
+          id: string
+          odds: number | null
+          potential_payout: number
+          predicted_points: number | null
+          settled_at: string | null
+          stake: number
+          status: string
+          team: string | null
+          total_odds: number | null
+          user_id: string
+        }
+        Insert: {
+          bet_type?: string
+          created_at?: string
+          id?: string
+          odds?: number | null
+          potential_payout: number
+          predicted_points?: number | null
+          settled_at?: string | null
+          stake: number
+          status?: string
+          team?: string | null
+          total_odds?: number | null
+          user_id: string
+        }
+        Update: {
+          bet_type?: string
+          created_at?: string
+          id?: string
+          odds?: number | null
+          potential_payout?: number
+          predicted_points?: number | null
+          settled_at?: string | null
+          stake?: number
+          status?: string
+          team?: string | null
+          total_odds?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      bonuses: {
+        Row: {
+          active: boolean
+          amount: number
+          bonus_type: string
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          max_claims_per_user: number
+          percentage: number | null
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          amount?: number
+          bonus_type: string
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          max_claims_per_user?: number
+          percentage?: number | null
+          title: string
+        }
+        Update: {
+          active?: boolean
+          amount?: number
+          bonus_type?: string
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          max_claims_per_user?: number
+          percentage?: number | null
+          title?: string
+        }
+        Relationships: []
+      }
+      jackpot_tickets: {
         Row: {
           created_at: string
           id: string
-          odds: number
-          potential_payout: number
-          predicted_points: number
-          stake: number
-          status: string
-          team: string
+          source: string
+          ticket_number: string
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
-          odds: number
-          potential_payout: number
-          predicted_points: number
-          stake: number
-          status?: string
-          team: string
+          source?: string
+          ticket_number: string
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
-          odds?: number
-          potential_payout?: number
-          predicted_points?: number
-          stake?: number
-          status?: string
-          team?: string
+          source?: string
+          ticket_number?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      loyalty_points: {
+        Row: {
+          points: number
+          tier: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          points?: number
+          tier?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          points?: number
+          tier?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      matches: {
+        Row: {
+          away_crest: string | null
+          away_score: number | null
+          away_team: string
+          home_crest: string | null
+          home_score: number | null
+          home_team: string
+          id: number
+          kickoff: string
+          odds_away: number
+          odds_btts_no: number
+          odds_btts_yes: number
+          odds_draw: number
+          odds_home: number
+          odds_over25: number
+          odds_under25: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          away_crest?: string | null
+          away_score?: number | null
+          away_team: string
+          home_crest?: string | null
+          home_score?: number | null
+          home_team: string
+          id: number
+          kickoff: string
+          odds_away?: number
+          odds_btts_no?: number
+          odds_btts_yes?: number
+          odds_draw?: number
+          odds_home?: number
+          odds_over25?: number
+          odds_under25?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          away_crest?: string | null
+          away_score?: number | null
+          away_team?: string
+          home_crest?: string | null
+          home_score?: number | null
+          home_team?: string
+          id?: number
+          kickoff?: string
+          odds_away?: number
+          odds_btts_no?: number
+          odds_btts_yes?: number
+          odds_draw?: number
+          odds_home?: number
+          odds_over25?: number
+          odds_under25?: number
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -76,6 +277,38 @@ export type Database = {
           username?: string | null
         }
         Relationships: []
+      }
+      user_bonuses: {
+        Row: {
+          amount_credited: number
+          bonus_id: string
+          claimed_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          amount_credited?: number
+          bonus_id: string
+          claimed_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          amount_credited?: number
+          bonus_id?: string
+          claimed_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_bonuses_bonus_id_fkey"
+            columns: ["bonus_id"]
+            isOneToOne: false
+            referencedRelation: "bonuses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       wallet_transactions: {
         Row: {
