@@ -1,10 +1,49 @@
 import { Gift, Clock, TrendingUp, ArrowLeft, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import type { Session } from "@supabase/supabase-js";
+import { AuthModal } from "@/components/AuthModal";
+import Navigation from "@/components/Navigation";
 
 const Bonuses = () => {
+  const [session, setSession] = useState<Session | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+      setSession(s);
+    });
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      setSession(s);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="pt-16 flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Sign in for bonuses</h2>
+            <p className="text-muted-foreground mb-6">Please sign in or create an account to access bonus offers</p>
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              Sign In / Sign Up
+            </button>
+          </div>
+        </div>
+        {showAuthModal && (
+          <AuthModal onClose={() => setShowAuthModal(false)} />
+        )}
+      </div>
+    );
+  }
   const [claimedBonuses, setClaimedBonuses] = useState<string[]>([]);
   const [loyaltyPoints, setLoyaltyPoints] = useState(350);
 
@@ -28,8 +67,10 @@ const Bonuses = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Navigation />
+      
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-glass-border bg-background/40 backdrop-blur-xl">
+      <header className="sticky top-16 z-30 border-b border-glass-border bg-background/40 backdrop-blur-xl">
         <div className="container flex h-16 items-center gap-3">
           <Link to="/">
             <Button variant="ghost" size="icon">
@@ -50,8 +91,9 @@ const Bonuses = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="container py-8">
+      <div className="pt-16">
+        {/* Main Content */}
+        <main className="container py-8">
         <section className="mb-8">
           <h1 className="text-3xl font-bold mb-4">Unlock Exclusive Rewards</h1>
           <p className="text-muted-foreground max-w-2xl">
@@ -173,6 +215,7 @@ const Bonuses = () => {
           </div>
         </section>
       </main>
+      </div>
     </div>
   );
 };

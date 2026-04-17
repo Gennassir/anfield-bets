@@ -1,6 +1,9 @@
 import { Trophy, Radio, Gift, Headphones, ShieldCheck } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const Footer = () => {
+  const navigate = useNavigate();
+
   const handleFeatureClick = (feature: "live" | "bonus" | "support") => {
     const urls = {
       live: "/live-betting",
@@ -8,9 +11,8 @@ export const Footer = () => {
       support: "/support"
     };
     
-    // Open in new tab with full URL
-    const fullUrl = window.location.origin + urls[feature];
-    window.open(fullUrl, '_blank', 'noopener,noreferrer,width=1200,height=800');
+    // Navigate within the app
+    navigate(urls[feature]);
   };
 
   return (

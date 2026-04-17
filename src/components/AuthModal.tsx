@@ -5,7 +5,11 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
-export const AuthModal = () => {
+interface AuthModalProps {
+  onClose?: () => void;
+}
+
+export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,8 +46,19 @@ export const AuthModal = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-background/70 backdrop-blur-md" />
+      <div 
+        className="absolute inset-0 bg-background/70 backdrop-blur-md" 
+        onClick={onClose}
+      />
       <div className="glass-strong relative w-full max-w-md rounded-3xl p-8 animate-float-up">
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute right-4 top-4 rounded-full p-2 text-muted-foreground hover:bg-background/50 transition-colors"
+          >
+            ×
+          </button>
+        )}
         <div className="mb-6 text-center">
           <div className="mx-auto mb-3 inline-flex items-center gap-2 rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-primary">
             <span className="live-dot" /> RedZone Bets

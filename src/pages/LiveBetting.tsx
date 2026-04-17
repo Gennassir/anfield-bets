@@ -3,8 +3,47 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import type { Session } from "@supabase/supabase-js";
+import { AuthModal } from "@/components/AuthModal";
+import Navigation from "@/components/Navigation";
 
 const LiveBetting = () => {
+  const [session, setSession] = useState<Session | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+      setSession(s);
+    });
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      setSession(s);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="pt-16 flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Sign in for live betting</h2>
+            <p className="text-muted-foreground mb-6">Please sign in or create an account to access live in-play betting</p>
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              Sign In / Sign Up
+            </button>
+          </div>
+        </div>
+        {showAuthModal && (
+          <AuthModal onClose={() => setShowAuthModal(false)} />
+        )}
+      </div>
+    );
+  }
   const [liveMatches, setLiveMatches] = useState([
     {
       id: 1,
@@ -63,8 +102,10 @@ const LiveBetting = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Navigation />
+      
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-glass-border bg-background/40 backdrop-blur-xl">
+      <header className="sticky top-16 z-30 border-b border-glass-border bg-background/40 backdrop-blur-xl">
         <div className="container flex h-16 items-center gap-3">
           <Link to="/">
             <Button variant="ghost" size="icon">
@@ -85,8 +126,9 @@ const LiveBetting = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="container py-8">
+      <div className="pt-16">
+        {/* Main Content */}
+        <main className="container py-8">
         <section className="mb-8">
           <h1 className="text-3xl font-bold mb-4">Bet as the match unfolds</h1>
           <p className="text-muted-foreground max-w-2xl">
@@ -159,7 +201,8 @@ const LiveBetting = () => {
             </div>
           </div>
         </section>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };

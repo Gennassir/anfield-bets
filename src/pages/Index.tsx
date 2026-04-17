@@ -23,6 +23,7 @@ const Index = () => {
   const [items, setItems] = useState<BetItem[]>([]);
   const [walletOpen, setWalletOpen] = useState(false);
   const [placing, setPlacing] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
@@ -53,7 +54,21 @@ const Index = () => {
     if (user) refreshProfile();
   }, [user]);
 
+  
+  const selectedIds = new Set(items.map((i) => i.team.id));
+
+  const requireAuth = (callback?: () => void) => {
+    if (!session) {
+      setShowAuthModal(true);
+      return false;
+    }
+    if (callback) callback();
+    return true;
+  };
+
   const toggleTeam = (teamId: string) => {
+    if (!requireAuth()) return;
+    
     const team = teams.find((t) => t.id === teamId)!;
     setItems((prev) =>
       prev.find((i) => i.team.id === teamId)
@@ -62,25 +77,41 @@ const Index = () => {
     );
   };
 
-  const updateItem = (id: string, patch: Partial<BetItem>) =>
+  const updateItem = (id: string, patch: Partial<BetItem>) => {
+    if (!requireAuth()) return;
     setItems((prev) => prev.map((i) => (i.team.id === id ? { ...i, ...patch } : i)));
+  };
 
   const placeBet = async () => {
-    if (!user) return;
+    if (!requireAuth()) return;
+    
     const totalStake = items.reduce((s, i) => s + i.stake, 0);
     if (totalStake > balance) return toast.error("Insufficient wallet balance");
     if (items.some((i) => i.stake < 100)) return toast.error("Each stake must be at least KSH 100");
 
+    // Calculate dynamic odds for each bet
+    const calculateDynamicOdds = (baseOdds: number, predictedPoints: number) => {
+      const basePoints = 75;
+      const maxAdjustment = 0.5;
+      const adjustmentFactor = (predictedPoints - basePoints) / basePoints;
+      const oddsAdjustment = adjustmentFactor * maxAdjustment;
+      const dynamicOdds = baseOdds * (1 - oddsAdjustment);
+      return Math.max(1.1, Math.min(10.0, dynamicOdds));
+    };
+
     setPlacing(true);
     const { error: betsErr } = await supabase.from("bets").insert(
-      items.map((i) => ({
-        user_id: user.id,
-        team: i.team.name,
-        predicted_points: i.predictedPoints,
-        stake: i.stake,
-        odds: i.team.odds,
-        potential_payout: i.stake * i.team.odds,
-      }))
+      items.map((i) => {
+        const dynamicOdds = calculateDynamicOdds(i.team.odds, i.predictedPoints);
+        return {
+          user_id: user.id,
+          team: i.team.name,
+          predicted_points: i.predictedPoints,
+          stake: i.stake,
+          odds: dynamicOdds,
+          potential_payout: i.stake * dynamicOdds,
+        };
+      })
     );
     if (betsErr) { setPlacing(false); return toast.error(betsErr.message); }
 
@@ -94,10 +125,6 @@ const Index = () => {
     refreshProfile();
     setPlacing(false);
   };
-
-  const selectedIds = new Set(items.map((i) => i.team.id));
-
-  if (!session) return <AuthModal />;
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -115,7 +142,7 @@ const Index = () => {
       <div className="sticky top-16 z-40 border-b border-glass-border bg-background/40 backdrop-blur-xl">
         <div className="container flex h-12 items-center justify-end gap-2 px-4">
           <button
-            onClick={() => setWalletOpen(true)}
+            onClick={() => requireAuth(() => setWalletOpen(true))}
             className="glass flex items-center gap-2 rounded-full px-4 py-1 text-sm font-semibold transition hover:border-primary/50"
           >
             <Wallet className="h-4 w-4 text-accent" />
@@ -166,9 +193,9 @@ const Index = () => {
 
           <BetSlip
             items={items}
-            onRemove={(id) => setItems((p) => p.filter((i) => i.team.id !== id))}
-            onUpdate={updateItem}
-            onPlace={placeBet}
+            onRemove={(id) => requireAuth(() => setItems((p) => p.filter((i) => i.team.id !== id)))}
+            onUpdate={(id, patch) => requireAuth(() => setItems((prev) => prev.map((i) => (i.team.id === id ? { ...i, ...patch } : i))))}
+            onPlace={() => placeBet()}
             placing={placing}
           />
         </div>
@@ -182,6 +209,13 @@ const Index = () => {
           userId={user.id}
           balance={balance}
           onUpdated={refreshProfile}
+        />
+      )}
+
+      {/* Auth Modal - shows when user tries to interact without being logged in */}
+      {showAuthModal && (
+        <AuthModal 
+          onClose={() => setShowAuthModal(false)}
         />
       )}
     </div>
