@@ -10,6 +10,7 @@ import Support from "./pages/Support.tsx";
 import Matches from "./pages/Matches.tsx";
 import Standings from "./pages/Standings.tsx";
 import Teams from "./pages/Teams.tsx";
+import MyBets from "./pages/MyBets.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/matches" element={<Matches />} />
           <Route path="/standings" element={<Standings />} />
           <Route path="/teams" element={<Teams />} />
+          <Route path="/my-bets" element={<MyBets />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
