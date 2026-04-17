@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Trophy, Calendar, Users, Table, Menu, X } from 'lucide-react';
+import { Trophy, Calendar, Users, Table, Menu, X, Radio, Receipt, Gift } from 'lucide-react';
 
 const Navigation: React.FC = () => {
   const location = useLocation();
@@ -11,9 +11,10 @@ const Navigation: React.FC = () => {
 
   const navigationItems = [
     { path: '/', label: 'Home', icon: Trophy },
-    { path: '/matches', label: 'Matches', icon: Calendar },
+    { path: '/live-betting', label: 'Live', icon: Radio },
+    { path: '/my-bets', label: 'My Bets', icon: Receipt },
+    { path: '/bonuses', label: 'Bonuses', icon: Gift },
     { path: '/standings', label: 'Table', icon: Table },
-    { path: '/teams', label: 'Teams', icon: Users },
   ];
 
   return (
