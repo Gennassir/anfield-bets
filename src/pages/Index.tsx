@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
 import { AuthModal } from "@/components/AuthModal";
 import { TeamCard } from "@/components/TeamCard";
-import { BetSlip, BetItem } from "@/components/BetSlip";
 import { WalletModal } from "@/components/WalletModal";
 import { teams } from "@/lib/teams";
 import { Button } from "@/components/ui/button";
-import { LogOut, Wallet } from "lucide-react";
-import { toast } from "sonner";
+import { LogOut, Wallet, Radio, Receipt, Gift } from "lucide-react";
 import stadium from "@/assets/stadium-hero.jpg";
 import { Footer } from "@/components/Footer";
 import { LiveData } from "@/components/LiveData";
@@ -20,125 +19,41 @@ const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [balance, setBalance] = useState(0);
   const [username, setUsername] = useState("");
-  const [items, setItems] = useState<BetItem[]>([]);
   const [walletOpen, setWalletOpen] = useState(false);
-  const [placing, setPlacing] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
-      setSession(s);
-      setUser(s?.user ?? null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
+      setSession(s); setUser(s?.user ?? null);
     });
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
-      setSession(s);
-      setUser(s?.user ?? null);
-    });
+    supabase.auth.getSession().then(({ data: { session: s } }) => { setSession(s); setUser(s?.user ?? null); });
     return () => subscription.unsubscribe();
   }, []);
 
   const refreshProfile = async () => {
     if (!user) return;
-    const { data } = await supabase
-      .from("profiles")
-      .select("balance, username")
-      .eq("user_id", user.id)
-      .maybeSingle();
-    if (data) {
-      setBalance(Number(data.balance));
-      setUsername(data.username ?? "");
-    }
+    const { data } = await supabase.from("profiles").select("balance, username").eq("user_id", user.id).maybeSingle();
+    if (data) { setBalance(Number(data.balance)); setUsername(data.username ?? ""); }
   };
 
-  useEffect(() => {
-    if (user) refreshProfile();
-  }, [user]);
+  useEffect(() => { if (user) refreshProfile(); }, [user]);
 
-  
-  const selectedIds = new Set(items.map((i) => i.team.id));
-
-  const requireAuth = (callback?: () => void) => {
-    if (!session) {
-      setShowAuthModal(true);
-      return false;
-    }
-    if (callback) callback();
+  const requireAuth = (cb?: () => void) => {
+    if (!session) { setShowAuthModal(true); return false; }
+    if (cb) cb();
     return true;
-  };
-
-  const toggleTeam = (teamId: string) => {
-    if (!requireAuth()) return;
-    
-    const team = teams.find((t) => t.id === teamId)!;
-    setItems((prev) =>
-      prev.find((i) => i.team.id === teamId)
-        ? prev.filter((i) => i.team.id !== teamId)
-        : [...prev, { team, predictedPoints: 75, stake: 100 }]
-    );
-  };
-
-  const updateItem = (id: string, patch: Partial<BetItem>) => {
-    if (!requireAuth()) return;
-    setItems((prev) => prev.map((i) => (i.team.id === id ? { ...i, ...patch } : i)));
-  };
-
-  const placeBet = async () => {
-    if (!requireAuth()) return;
-    
-    const totalStake = items.reduce((s, i) => s + i.stake, 0);
-    if (totalStake > balance) return toast.error("Insufficient wallet balance");
-    if (items.some((i) => i.stake < 100)) return toast.error("Each stake must be at least KSH 100");
-
-    // Calculate dynamic odds for each bet
-    const calculateDynamicOdds = (baseOdds: number, predictedPoints: number) => {
-      const basePoints = 75;
-      const maxAdjustment = 0.5;
-      const adjustmentFactor = (predictedPoints - basePoints) / basePoints;
-      const oddsAdjustment = adjustmentFactor * maxAdjustment;
-      const dynamicOdds = baseOdds * (1 - oddsAdjustment);
-      return Math.max(1.1, Math.min(10.0, dynamicOdds));
-    };
-
-    setPlacing(true);
-    const { error: betsErr } = await supabase.from("bets").insert(
-      items.map((i) => {
-        const dynamicOdds = calculateDynamicOdds(i.team.odds, i.predictedPoints);
-        return {
-          user_id: user.id,
-          team: i.team.name,
-          predicted_points: i.predictedPoints,
-          stake: i.stake,
-          odds: dynamicOdds,
-          potential_payout: i.stake * dynamicOdds,
-        };
-      })
-    );
-    if (betsErr) { setPlacing(false); return toast.error(betsErr.message); }
-
-    await supabase.from("wallet_transactions").insert({
-      user_id: user.id, type: "bet", amount: -totalStake, description: `${items.length} selection(s)`,
-    });
-    await supabase.from("profiles").update({ balance: balance - totalStake }).eq("user_id", user.id);
-
-    toast.success(`Bet placed! KSH ${totalStake.toLocaleString()} staked.`);
-    setItems([]);
-    refreshProfile();
-    setPlacing(false);
   };
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Background */}
       <div className="fixed inset-0 -z-10">
         <img src={stadium} alt="" className="h-full w-full object-cover" width={1920} height={1080} />
         <div className="absolute inset-0" style={{ background: "var(--gradient-overlay)" }} />
         <div className="absolute inset-0" style={{ background: "var(--gradient-glow)" }} />
       </div>
 
-      {/* Navigation with Wallet and Logout */}
       <Navigation />
-      
-      {/* User Actions Bar */}
+
       <div className="sticky top-16 z-40 border-b border-glass-border bg-background/40 backdrop-blur-xl">
         <div className="container flex h-12 items-center justify-end gap-2 px-4">
           <button
@@ -149,75 +64,50 @@ const Index = () => {
             <span className="text-muted-foreground">KSH</span>
             <span>{balance.toLocaleString()}</span>
           </button>
-          <Button variant="ghost" size="sm" onClick={() => supabase.auth.signOut()}>
-            <LogOut className="h-4 w-4" />
-          </Button>
+          {session && (
+            <Button variant="ghost" size="sm" onClick={() => supabase.auth.signOut()}>
+              <LogOut className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* Main */}
       <main className="container py-8">
         <section className="mb-8 animate-float-up">
-          <p className="text-xs uppercase tracking-[0.3em] text-primary">Matchday 32</p>
+          <p className="text-xs uppercase tracking-[0.3em] text-primary">Premier League · Live</p>
           <h1 className="mt-2 text-4xl font-bold sm:text-5xl">
-            Hey {username || "there"} — <span className="text-accent">pick your champions.</span>
+            Hey {username || "there"} — <span className="text-accent">place real bets.</span>
           </h1>
           <p className="mt-2 max-w-xl text-muted-foreground">
-            Predict the season's top points totals. Stake from KSH 100. Cash out via M-Pesa anytime.
+            Real EPL fixtures, real odds, real payouts. Welcome bonus KSH 500 already in your wallet.
           </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link to="/live-betting"><Button variant="hero"><Radio className="h-4 w-4 mr-2" />Bet Live</Button></Link>
+            <Link to="/my-bets"><Button variant="outline"><Receipt className="h-4 w-4 mr-2" />My Bets</Button></Link>
+            <Link to="/bonuses"><Button variant="outline"><Gift className="h-4 w-4 mr-2" />Bonuses</Button></Link>
+          </div>
         </section>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-          <section>
-            <Tabs defaultValue="teams">
-              <TabsList className="mb-4">
-                <TabsTrigger value="teams">Teams</TabsTrigger>
-                <TabsTrigger value="live">Live · Fixtures & Table</TabsTrigger>
-              </TabsList>
-              <TabsContent value="teams">
-                <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">Premier League Teams</h2>
-                  <span className="text-xs text-muted-foreground">{items.length} selected</span>
-                </div>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-                  {teams.map((t) => (
-                    <TeamCard key={t.id} team={t} selected={selectedIds.has(t.id)} onClick={() => toggleTeam(t.id)} />
-                  ))}
-                </div>
-              </TabsContent>
-              <TabsContent value="live">
-                <LiveData />
-              </TabsContent>
-            </Tabs>
-          </section>
-
-          <BetSlip
-            items={items}
-            onRemove={(id) => requireAuth(() => setItems((p) => p.filter((i) => i.team.id !== id)))}
-            onUpdate={(id, patch) => requireAuth(() => setItems((prev) => prev.map((i) => (i.team.id === id ? { ...i, ...patch } : i))))}
-            onPlace={() => placeBet()}
-            placing={placing}
-          />
-        </div>
+        <section>
+          <Tabs defaultValue="live">
+            <TabsList className="mb-4">
+              <TabsTrigger value="live">Live · Fixtures & Table</TabsTrigger>
+              <TabsTrigger value="teams">Teams</TabsTrigger>
+            </TabsList>
+            <TabsContent value="live"><LiveData /></TabsContent>
+            <TabsContent value="teams">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                {teams.map((t) => <TeamCard key={t.id} team={t} selected={false} onClick={() => {}} />)}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </section>
       </main>
+
       <Footer />
 
-      {user && (
-        <WalletModal
-          open={walletOpen}
-          onOpenChange={setWalletOpen}
-          userId={user.id}
-          balance={balance}
-          onUpdated={refreshProfile}
-        />
-      )}
-
-      {/* Auth Modal - shows when user tries to interact without being logged in */}
-      {showAuthModal && (
-        <AuthModal 
-          onClose={() => setShowAuthModal(false)}
-        />
-      )}
+      {user && <WalletModal open={walletOpen} onOpenChange={setWalletOpen} userId={user.id} balance={balance} onUpdated={refreshProfile} />}
+      {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
     </div>
   );
 };
