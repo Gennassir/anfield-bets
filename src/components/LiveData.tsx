@@ -4,26 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-type Standing = {
-  position: number;
-  team: { id: number; name: string; shortName: string; tla: string; crest: string };
-  playedGames: number;
-  won: number;
-  draw: number;
-  lost: number;
-  goalDifference: number;
-  points: number;
-};
-
-type Match = {
-  id: number;
-  utcDate: string;
-  status: string;
-  homeTeam: { name: string; tla: string; crest: string };
-  awayTeam: { name: string; tla: string; crest: string };
-  score: { fullTime: { home: number | null; away: number | null } };
-};
+import { footballApi, Standing, Match } from "@/services/footballApi";
 
 export const LiveData = () => {
   const [standings, setStandings] = useState<Standing[] | null>(null);
@@ -35,16 +16,12 @@ export const LiveData = () => {
     setLoading(true);
     setError(null);
     try {
-      const base = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/epl-data`;
-      const headers = { Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` };
-      const [s, m] = await Promise.all([
-        fetch(`${base}?resource=standings`, { headers }).then((r) => r.json()),
-        fetch(`${base}?resource=matches`, { headers }).then((r) => r.json()),
+      const [standingsData, matchesData] = await Promise.all([
+        footballApi.getPremierLeagueStandings(),
+        footballApi.getPremierLeagueMatches(),
       ]);
-      if (s?.error) throw new Error(s.error);
-      if (m?.error) throw new Error(m.error);
-      setStandings(s?.standings?.[0]?.table ?? []);
-      setMatches((m?.matches ?? []).slice(0, 12));
+      setStandings(standingsData);
+      setMatches(matchesData.slice(0, 12));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load");
     } finally {

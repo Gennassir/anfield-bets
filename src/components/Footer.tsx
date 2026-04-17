@@ -1,6 +1,18 @@
 import { Trophy, Radio, Gift, Headphones, ShieldCheck } from "lucide-react";
 
 export const Footer = () => {
+  const handleFeatureClick = (feature: "live" | "bonus" | "support") => {
+    const urls = {
+      live: "/live-betting",
+      bonus: "/bonuses", 
+      support: "/support"
+    };
+    
+    // Open in new tab with full URL
+    const fullUrl = window.location.origin + urls[feature];
+    window.open(fullUrl, '_blank', 'noopener,noreferrer,width=1200,height=800');
+  };
+
   return (
     <footer className="relative mt-16 border-t border-glass-border bg-background/60 backdrop-blur-xl">
       {/* Jackpot banner */}
@@ -34,16 +46,19 @@ export const Footer = () => {
           icon={<Radio className="h-5 w-5" />}
           title="Live In-Play Action"
           desc="Bet as the match unfolds with real-time odds updates."
+          onClick={() => handleFeatureClick("live")}
         />
         <FeatureCard
           icon={<Gift className="h-5 w-5" />}
           title="Bonus Offers & Rewards"
           desc="Daily boosts, free bets and weekly cashback for loyal punters."
+          onClick={() => handleFeatureClick("bonus")}
         />
         <FeatureCard
           icon={<Headphones className="h-5 w-5" />}
           title="24/7 Support"
           desc="Our Nairobi-based team is always one tap away."
+          onClick={() => handleFeatureClick("support")}
         />
       </div>
 
@@ -73,12 +88,17 @@ const FeatureCard = ({
   icon,
   title,
   desc,
+  onClick,
 }: {
   icon: React.ReactNode;
   title: string;
   desc: string;
+  onClick?: () => void;
 }) => (
-  <div className="glass flex items-start gap-3 rounded-2xl p-4 transition hover:border-primary/40">
+  <div 
+    className="glass flex items-start gap-3 rounded-2xl p-4 transition hover:border-primary/40 cursor-pointer hover:scale-[1.02]"
+    onClick={onClick}
+  >
     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[image:var(--gradient-primary)] text-primary-foreground shadow-[var(--shadow-glow)]">
       {icon}
     </div>

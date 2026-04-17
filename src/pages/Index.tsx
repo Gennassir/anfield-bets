@@ -7,12 +7,13 @@ import { BetSlip, BetItem } from "@/components/BetSlip";
 import { WalletModal } from "@/components/WalletModal";
 import { teams } from "@/lib/teams";
 import { Button } from "@/components/ui/button";
-import { LogOut, Wallet, Trophy } from "lucide-react";
+import { LogOut, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import stadium from "@/assets/stadium-hero.jpg";
 import { Footer } from "@/components/Footer";
 import { LiveData } from "@/components/LiveData";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Navigation from "@/components/Navigation";
 
 const Index = () => {
   const [session, setSession] = useState<Session | null>(null);
@@ -107,36 +108,25 @@ const Index = () => {
         <div className="absolute inset-0" style={{ background: "var(--gradient-glow)" }} />
       </div>
 
-      {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-glass-border bg-background/40 backdrop-blur-xl">
-        <div className="container flex h-16 items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[image:var(--gradient-primary)] shadow-[var(--shadow-glow)]">
-              <Trophy className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <div>
-              <div className="text-base font-bold leading-none">RedZone Bets</div>
-              <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">
-                <span className="live-dot" /> Premier League · Live
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setWalletOpen(true)}
-              className="glass flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition hover:border-primary/50"
-            >
-              <Wallet className="h-4 w-4 text-accent" />
-              <span className="text-muted-foreground">KSH</span>
-              <span>{balance.toLocaleString()}</span>
-            </button>
-            <Button variant="ghost" size="icon" onClick={() => supabase.auth.signOut()}>
-              <LogOut className="h-4 w-4" />
-            </Button>
-          </div>
+      {/* Navigation with Wallet and Logout */}
+      <Navigation />
+      
+      {/* User Actions Bar */}
+      <div className="sticky top-16 z-40 border-b border-glass-border bg-background/40 backdrop-blur-xl">
+        <div className="container flex h-12 items-center justify-end gap-2 px-4">
+          <button
+            onClick={() => setWalletOpen(true)}
+            className="glass flex items-center gap-2 rounded-full px-4 py-1 text-sm font-semibold transition hover:border-primary/50"
+          >
+            <Wallet className="h-4 w-4 text-accent" />
+            <span className="text-muted-foreground">KSH</span>
+            <span>{balance.toLocaleString()}</span>
+          </button>
+          <Button variant="ghost" size="sm" onClick={() => supabase.auth.signOut()}>
+            <LogOut className="h-4 w-4" />
+          </Button>
         </div>
-      </header>
+      </div>
 
       {/* Main */}
       <main className="container py-8">
