@@ -11,39 +11,6 @@ import Navigation from "@/components/Navigation";
 const LiveBetting = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
-
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
-      setSession(s);
-    });
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
-      setSession(s);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
-  if (!session) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="pt-16 flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Sign in for live betting</h2>
-            <p className="text-muted-foreground mb-6">Please sign in or create an account to access live in-play betting</p>
-            <button
-              onClick={() => setShowAuthModal(true)}
-              className="bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors"
-            >
-              Sign In / Sign Up
-            </button>
-          </div>
-        </div>
-        {showAuthModal && (
-          <AuthModal onClose={() => setShowAuthModal(false)} />
-        )}
-      </div>
-    );
-  }
   const [liveMatches, setLiveMatches] = useState([
     {
       id: 1,
@@ -70,11 +37,19 @@ const LiveBetting = () => {
       awayOdds: 2.80
     }
   ]);
-
   const [selectedBets, setSelectedBets] = useState<{[key: number]: string}>({});
 
   useEffect(() => {
-    // Simulate real-time updates
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+      setSession(s);
+    });
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      setSession(s);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
     const interval = setInterval(() => {
       setLiveMatches(prev => prev.map(match => {
         if (match.status === "LIVE") {
@@ -94,6 +69,29 @@ const LiveBetting = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="pt-16 flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Sign in for live betting</h2>
+            <p className="text-muted-foreground mb-6">Please sign in or create an account to access live in-play betting</p>
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              Sign In / Sign Up
+            </button>
+          </div>
+        </div>
+        {showAuthModal && (
+          <AuthModal onClose={() => setShowAuthModal(false)} />
+        )}
+      </div>
+    );
+  }
 
   const handleBet = (matchId: number, betType: string, odds: number) => {
     setSelectedBets(prev => ({ ...prev, [matchId]: betType }));
