@@ -11,6 +11,8 @@ import Navigation from "@/components/Navigation";
 const Bonuses = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [claimedBonuses, setClaimedBonuses] = useState<string[]>([]);
+  const [loyaltyPoints, setLoyaltyPoints] = useState(350);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
@@ -44,8 +46,6 @@ const Bonuses = () => {
       </div>
     );
   }
-  const [claimedBonuses, setClaimedBonuses] = useState<string[]>([]);
-  const [loyaltyPoints, setLoyaltyPoints] = useState(350);
 
   const handleClaimBonus = (code: string, title: string) => {
     if (claimedBonuses.includes(code)) {
