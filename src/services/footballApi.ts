@@ -6,17 +6,26 @@ export interface Team {
   shortName: string;
   tla: string;
   crest: string;
+  address?: string;
+  website?: string;
+  founded?: number;
+  clubColors?: string;
+  venue?: string;
 }
 
 export interface Match {
   id: number;
   utcDate: string;
   status: string;
+  matchday?: number;
+  venue?: string;
   homeTeam: Team;
   awayTeam: Team;
   score: {
     fullTime: { home: number | null; away: number | null };
+    halfTime?: { home: number | null; away: number | null };
   };
+  referees?: Array<{ id: number; name: string; type: string; nationality: string }>;
 }
 
 export interface Standing {
@@ -33,16 +42,6 @@ export interface Standing {
   goalDifference: number;
 }
 
-async function callEdge(resource: "standings" | "matches") {
-  const { data, error } = await supabase.functions.invoke("epl-data", {
-    method: "GET",
-    // pass as query string via body workaround: use fetch directly
-  });
-  if (error) throw error;
-  return data;
-}
-
-// We need query params, so call the function URL directly
 const FN_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/epl-data`;
 const ANON = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
@@ -63,6 +62,22 @@ class FootballApiService {
   async getPremierLeagueMatches(): Promise<Match[]> {
     const data = await fetchEdge("matches");
     return data.matches || [];
+  }
+
+  async getTodayMatches(): Promise<Match[]> {
+    const all = await this.getPremierLeagueMatches();
+    const today = new Date().toISOString().split("T")[0];
+    return all.filter((m) => m.utcDate.startsWith(today));
+  }
+
+  async getLiveMatches(): Promise<Match[]> {
+    const all = await this.getPremierLeagueMatches();
+    return all.filter((m) => m.status === "IN_PLAY" || m.status === "LIVE");
+  }
+
+  async getPremierLeagueTeams(): Promise<Team[]> {
+    const standings = await this.getPremierLeagueStandings();
+    return standings.map((s) => s.team);
   }
 }
 
