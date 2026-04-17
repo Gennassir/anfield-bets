@@ -113,7 +113,8 @@ export const BetSlip = ({ items, onRemove, onUpdate, onPlace, placing }: Props) 
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="mt-4 space-y-2 border-t border-glass-border pt-4">
