@@ -20,7 +20,14 @@ const Index = () => {
   const [balance, setBalance] = useState(0);
   const [username, setUsername] = useState("");
   const [walletOpen, setWalletOpen] = useState(false);
+  const [walletMode, setWalletMode] = useState<"deposit" | "withdraw">("deposit");
   const [showAuthModal, setShowAuthModal] = useState(false);
+
+  const openWallet = (m: "deposit" | "withdraw") => {
+    if (!session) { setShowAuthModal(true); return; }
+    setWalletMode(m);
+    setWalletOpen(true);
+  };
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
@@ -55,15 +62,21 @@ const Index = () => {
       <Navigation />
 
       <div className="sticky top-16 z-40 border-b border-glass-border bg-background/40 backdrop-blur-xl">
-        <div className="container flex h-12 items-center justify-end gap-2 px-4">
+        <div className="container flex h-14 items-center justify-end gap-2 px-4">
           <button
-            onClick={() => requireAuth(() => setWalletOpen(true))}
-            className="glass flex items-center gap-2 rounded-full px-4 py-1 text-sm font-semibold transition hover:border-primary/50"
+            onClick={() => requireAuth(() => { setWalletMode("deposit"); setWalletOpen(true); })}
+            className="glass flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-semibold transition hover:border-primary/50"
           >
             <Wallet className="h-4 w-4 text-accent" />
             <span className="text-muted-foreground">KSH</span>
             <span>{balance.toLocaleString()}</span>
           </button>
+          <Button size="sm" variant="hero" onClick={() => openWallet("deposit")} className="h-9">
+            <ArrowDownToLine className="h-4 w-4 mr-1.5" />Deposit
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => openWallet("withdraw")} className="h-9">
+            <ArrowUpFromLine className="h-4 w-4 mr-1.5" />Withdraw
+          </Button>
           {session && (
             <Button variant="ghost" size="sm" onClick={() => supabase.auth.signOut()}>
               <LogOut className="h-4 w-4" />
@@ -106,7 +119,7 @@ const Index = () => {
 
       <Footer />
 
-      {user && <WalletModal open={walletOpen} onOpenChange={setWalletOpen} userId={user.id} balance={balance} onUpdated={refreshProfile} />}
+      {user && <WalletModal open={walletOpen} onOpenChange={setWalletOpen} userId={user.id} balance={balance} onUpdated={refreshProfile} initialMode={walletMode} />}
       {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
     </div>
   );
