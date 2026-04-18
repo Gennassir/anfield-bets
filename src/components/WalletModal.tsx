@@ -12,15 +12,21 @@ interface Props {
   userId: string;
   balance: number;
   onUpdated: () => void;
+  initialMode?: "deposit" | "withdraw";
 }
 
-export const WalletModal = ({ open, onOpenChange, userId, balance, onUpdated }: Props) => {
-  const [mode, setMode] = useState<"deposit" | "withdraw">("deposit");
+export const WalletModal = ({ open, onOpenChange, userId, balance, onUpdated, initialMode = "deposit" }: Props) => {
+  const [mode, setMode] = useState<"deposit" | "withdraw">(initialMode);
   const [amount, setAmount] = useState("");
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [pendingStkId, setPendingStkId] = useState<string | null>(null);
   const [waiting, setWaiting] = useState(false);
+
+  // Sync mode when reopened with a different initialMode
+  useEffect(() => {
+    if (open) setMode(initialMode);
+  }, [open, initialMode]);
 
   // Poll for completion when an STK is pending
   useEffect(() => {
