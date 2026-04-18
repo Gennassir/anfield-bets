@@ -31,11 +31,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
           },
         });
         if (error) throw error;
-        toast.success("Welcome aboard! You're signed in.");
+        // Sign user out so they must explicitly sign in
+        await supabase.auth.signOut();
+        toast.success("Registration successful! Please sign in to continue.");
+        setMode("signin");
+        setPassword("");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Welcome back!");
+        onClose?.();
       }
     } catch (err: any) {
       toast.error(err.message ?? "Authentication failed");

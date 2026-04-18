@@ -7,7 +7,7 @@ import { TeamCard } from "@/components/TeamCard";
 import { WalletModal } from "@/components/WalletModal";
 import { teams } from "@/lib/teams";
 import { Button } from "@/components/ui/button";
-import { LogOut, Wallet, Radio, Receipt, Gift } from "lucide-react";
+import { LogOut, Wallet, Radio, Receipt, Gift, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
 import stadium from "@/assets/stadium-hero.jpg";
 import { Footer } from "@/components/Footer";
 import { LiveData } from "@/components/LiveData";
