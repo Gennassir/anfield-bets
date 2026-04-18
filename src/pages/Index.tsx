@@ -79,7 +79,7 @@ const Index = () => {
             Hey {username || "there"} — <span className="text-accent">place real bets.</span>
           </h1>
           <p className="mt-2 max-w-xl text-muted-foreground">
-            Real EPL fixtures, real odds, real payouts. Welcome bonus KSH 500 already in your wallet.
+            Real EPL fixtures, real odds, real M-Pesa payouts. Deposit via M-Pesa to unlock up to 100% deposit-match bonus.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Link to="/live-betting"><Button variant="hero"><Radio className="h-4 w-4 mr-2" />Bet Live</Button></Link>
