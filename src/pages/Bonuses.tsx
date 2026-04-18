@@ -17,6 +17,7 @@ interface Bonus {
   amount: number;
   percentage: number | null;
   max_claims_per_user: number;
+  min_deposit: number;
 }
 
 const Bonuses = () => {
@@ -65,23 +66,44 @@ const Bonuses = () => {
   const handleClaim = async (b: Bonus) => {
     if (claimedIds.has(b.id)) return toast.error("Already claimed");
     setClaiming(b.id);
-    const credit = b.bonus_type === "free_bet" ? Number(b.amount) : 0;
+
+    // Find the user's most recent successful deposit not yet used for a bonus
+    const { data: deposits } = await supabase
+      .from("stk_requests")
+      .select("id, amount, created_at")
+      .eq("user_id", session.user.id)
+      .eq("type", "deposit")
+      .eq("status", "success")
+      .order("created_at", { ascending: false })
+      .limit(5);
+
+    const lastDeposit = deposits?.[0];
+    if (!lastDeposit || Number(lastDeposit.amount) < Number(b.min_deposit)) {
+      setClaiming(null);
+      return toast.error(`Make a deposit of at least KSH ${b.min_deposit} first`);
+    }
+
+    const pct = Number(b.percentage ?? 0);
+    const cap = Number(b.amount ?? 0);
+    const credit = Math.min(Math.round((Number(lastDeposit.amount) * pct) / 100), cap);
+
     const { error } = await supabase.from("user_bonuses").insert({
       user_id: session.user.id, bonus_id: b.id, amount_credited: credit,
     });
     if (error) { setClaiming(null); return toast.error(error.message); }
+
     if (credit > 0) {
       const { data: prof } = await supabase.from("profiles").select("balance").eq("user_id", session.user.id).maybeSingle();
       if (prof) {
         await supabase.from("profiles").update({ balance: Number(prof.balance) + credit }).eq("user_id", session.user.id);
         await supabase.from("wallet_transactions").insert({
-          user_id: session.user.id, type: "bonus", amount: credit, description: `${b.title} claimed`,
+          user_id: session.user.id, type: "bonus", amount: credit, description: `${b.title} on KSH ${lastDeposit.amount} deposit`,
         });
       }
     }
     setClaimedIds((prev) => new Set(prev).add(b.id));
     setClaiming(null);
-    toast.success(`${b.title} claimed${credit > 0 ? ` — KSH ${credit} credited!` : "!"}`);
+    toast.success(`${b.title} claimed — KSH ${credit.toLocaleString()} credited!`);
   };
 
   const tiers = [
