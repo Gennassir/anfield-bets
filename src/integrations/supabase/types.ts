@@ -117,6 +117,7 @@ export type Database = {
           description: string | null
           id: string
           max_claims_per_user: number
+          min_deposit: number
           percentage: number | null
           title: string
         }
@@ -129,6 +130,7 @@ export type Database = {
           description?: string | null
           id?: string
           max_claims_per_user?: number
+          min_deposit?: number
           percentage?: number | null
           title: string
         }
@@ -141,6 +143,7 @@ export type Database = {
           description?: string | null
           id?: string
           max_claims_per_user?: number
+          min_deposit?: number
           percentage?: number | null
           title?: string
         }
@@ -275,6 +278,57 @@ export type Database = {
           updated_at?: string
           user_id?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      stk_requests: {
+        Row: {
+          amount: number
+          checkout_request_id: string | null
+          created_at: string
+          external_reference: string
+          id: string
+          mpesa_receipt: string | null
+          payhero_reference: string | null
+          phone: string
+          raw_callback: Json | null
+          result_desc: string | null
+          status: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          checkout_request_id?: string | null
+          created_at?: string
+          external_reference: string
+          id?: string
+          mpesa_receipt?: string | null
+          payhero_reference?: string | null
+          phone: string
+          raw_callback?: Json | null
+          result_desc?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          checkout_request_id?: string | null
+          created_at?: string
+          external_reference?: string
+          id?: string
+          mpesa_receipt?: string | null
+          payhero_reference?: string | null
+          phone?: string
+          raw_callback?: Json | null
+          result_desc?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
