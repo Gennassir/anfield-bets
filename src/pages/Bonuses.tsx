@@ -142,7 +142,8 @@ const Bonuses = () => {
                       <h3 className="font-semibold text-lg">{b.title}</h3>
                       <code className="text-sm bg-accent/20 px-3 py-1 rounded">{b.code}</code>
                     </div>
-                    <p className="text-muted-foreground mb-4 text-sm">{b.description}</p>
+                    <p className="text-muted-foreground mb-2 text-sm">{b.description}</p>
+                    <p className="text-[11px] text-accent mb-4">Requires deposit of KSH {Number(b.min_deposit).toLocaleString()}+ via M-Pesa</p>
                     <Button className="w-full" disabled={isClaimed || claiming === b.id} onClick={() => handleClaim(b)}>
                       {isClaimed ? <><Check className="h-4 w-4 mr-2" />Claimed</> : claiming === b.id ? "Claiming…" : "Claim Bonus"}
                     </Button>
