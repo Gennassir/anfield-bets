@@ -1,6 +1,12 @@
 import { Trophy, Radio, Gift, Headphones, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.jpeg";
+import mpesaLogo from "@/assets/partners/mpesa.png";
+import payheroLogo from "@/assets/partners/payhero.png";
+import eplLogo from "@/assets/partners/epl.png";
+import apifootballLogo from "@/assets/partners/apifootball.png";
+import bclbLogo from "@/assets/partners/bclb.png";
+import kraLogo from "@/assets/partners/kra.png";
 
 export const Footer = () => {
   const navigate = useNavigate();
@@ -68,14 +74,17 @@ export const Footer = () => {
             <h4 className="mb-3 text-sm font-bold uppercase tracking-widest text-foreground">Official Partners</h4>
             <div className="grid grid-cols-3 gap-3">
               {[
-                { label: "Safaricom M-PESA", sub: "Payments" },
-                { label: "PayHero", sub: "Gateway" },
-                { label: "Premier League", sub: "Data" },
-                { label: "API-Football", sub: "Live odds" },
-                { label: "BCLB", sub: "Regulator" },
-                { label: "KRA", sub: "Tax" },
+                { label: "Safaricom M-PESA", sub: "Payments", img: mpesaLogo },
+                { label: "PayHero", sub: "Gateway", img: payheroLogo },
+                { label: "Premier League", sub: "Data", img: eplLogo },
+                { label: "API-Football", sub: "Live odds", img: apifootballLogo },
+                { label: "BCLB", sub: "Regulator", img: bclbLogo },
+                { label: "KRA", sub: "Tax", img: kraLogo },
               ].map((p) => (
-                <div key={p.label} className="glass rounded-lg p-2 text-center">
+                <div key={p.label} className="glass flex flex-col items-center gap-1.5 rounded-lg p-2 text-center">
+                  <div className="flex h-10 w-full items-center justify-center rounded-md bg-white/95 p-1">
+                    <img src={p.img} alt={`${p.label} logo`} loading="lazy" width={512} height={512} className="max-h-8 w-auto object-contain" />
+                  </div>
                   <div className="text-[10px] font-bold leading-tight">{p.label}</div>
                   <div className="text-[9px] text-muted-foreground">{p.sub}</div>
                 </div>
