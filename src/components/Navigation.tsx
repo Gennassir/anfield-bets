@@ -28,7 +28,7 @@ const Navigation: React.FC = () => {
                 <Trophy className="h-4 w-4 text-primary-foreground" />
               </div>
               <div>
-                <div className="text-base font-bold leading-none">RedZone Bets</div>
+                <div className="text-base font-bold leading-none">ANFIELD BETS</div>
                 <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">
                   <span className="live-dot" /> Premier League · Live
                 </div>
