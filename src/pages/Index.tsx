@@ -5,9 +5,10 @@ import type { Session, User } from "@supabase/supabase-js";
 import { AuthModal } from "@/components/AuthModal";
 import { TeamCard } from "@/components/TeamCard";
 import { WalletModal } from "@/components/WalletModal";
+import { ChampionPredictionModal } from "@/components/ChampionPredictionModal";
 import { teams } from "@/lib/teams";
 import { Button } from "@/components/ui/button";
-import { LogOut, Wallet, Radio, Receipt, Gift, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
+import { LogOut, Wallet, Radio, Receipt, Gift, ArrowDownToLine, ArrowUpFromLine, Phone } from "lucide-react";
 import stadium from "@/assets/stadium-hero.jpg";
 import { Footer } from "@/components/Footer";
 import { LiveData } from "@/components/LiveData";
@@ -19,6 +20,7 @@ const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [balance, setBalance] = useState(0);
   const [username, setUsername] = useState("");
+  const [phone, setPhone] = useState("");
   const [walletOpen, setWalletOpen] = useState(false);
   const [walletMode, setWalletMode] = useState<"deposit" | "withdraw">("deposit");
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -39,8 +41,12 @@ const Index = () => {
 
   const refreshProfile = async () => {
     if (!user) return;
-    const { data } = await supabase.from("profiles").select("balance, username").eq("user_id", user.id).maybeSingle();
-    if (data) { setBalance(Number(data.balance)); setUsername(data.username ?? ""); }
+    const { data } = await supabase.from("profiles").select("balance, username, phone").eq("user_id", user.id).maybeSingle();
+    if (data) {
+      setBalance(Number(data.balance));
+      setUsername(data.username ?? "");
+      setPhone(data.phone ?? "");
+    }
   };
 
   useEffect(() => { if (user) refreshProfile(); }, [user]);
@@ -61,8 +67,13 @@ const Index = () => {
 
       <Navigation />
 
-      <div className="sticky top-16 z-40 border-b border-glass-border bg-background/40 backdrop-blur-xl">
+      <div className="sticky top-16 z-40 border-b border-glass-border bg-background/40 backdrop-blur-md">
         <div className="container flex h-14 items-center justify-end gap-2 px-4">
+          {session && phone && (
+            <span className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground mr-2">
+              <Phone className="h-3 w-3 text-accent" /> {phone}
+            </span>
+          )}
           <button
             onClick={() => requireAuth(() => { setWalletMode("deposit"); setWalletOpen(true); })}
             className="glass flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-semibold transition hover:border-primary/50"
@@ -89,11 +100,8 @@ const Index = () => {
         <section className="mb-8 animate-float-up">
           <p className="text-xs uppercase tracking-[0.3em] text-primary">Premier League · Live</p>
           <h1 className="mt-2 text-4xl font-bold sm:text-5xl">
-            Hey {username || "there"} — <span className="text-accent">place real bets.</span>
+            ANFIELD <span className="text-accent">BETS</span>
           </h1>
-          <p className="mt-2 max-w-xl text-muted-foreground">
-            Real EPL fixtures, real odds, real M-Pesa payouts. Deposit via M-Pesa to unlock up to 100% deposit-match bonus.
-          </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Link to="/live-betting"><Button variant="hero"><Radio className="h-4 w-4 mr-2" />Bet Live</Button></Link>
             <Link to="/my-bets"><Button variant="outline"><Receipt className="h-4 w-4 mr-2" />My Bets</Button></Link>
@@ -121,6 +129,13 @@ const Index = () => {
 
       {user && <WalletModal open={walletOpen} onOpenChange={setWalletOpen} userId={user.id} balance={balance} onUpdated={refreshProfile} initialMode={walletMode} />}
       {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
+
+      <ChampionPredictionModal
+        userId={user?.id ?? null}
+        balance={balance}
+        onPlaced={refreshProfile}
+        onRequireAuth={() => setShowAuthModal(true)}
+      />
     </div>
   );
 };

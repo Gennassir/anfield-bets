@@ -149,6 +149,42 @@ export type Database = {
         }
         Relationships: []
       }
+      champion_picks: {
+        Row: {
+          bet_id: string | null
+          created_at: string
+          id: string
+          odds: number
+          potential_payout: number
+          stake: number
+          status: string
+          team: string
+          user_id: string
+        }
+        Insert: {
+          bet_id?: string | null
+          created_at?: string
+          id?: string
+          odds: number
+          potential_payout: number
+          stake: number
+          status?: string
+          team: string
+          user_id: string
+        }
+        Update: {
+          bet_id?: string | null
+          created_at?: string
+          id?: string
+          odds?: number
+          potential_payout?: number
+          stake?: number
+          status?: string
+          team?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       jackpot_tickets: {
         Row: {
           created_at: string
@@ -259,6 +295,7 @@ export type Database = {
           balance: number
           created_at: string
           id: string
+          phone: string | null
           updated_at: string
           user_id: string
           username: string | null
@@ -267,6 +304,7 @@ export type Database = {
           balance?: number
           created_at?: string
           id?: string
+          phone?: string | null
           updated_at?: string
           user_id: string
           username?: string | null
@@ -275,6 +313,7 @@ export type Database = {
           balance?: number
           created_at?: string
           id?: string
+          phone?: string | null
           updated_at?: string
           user_id?: string
           username?: string | null

@@ -1,0 +1,150 @@
+import { useEffect, useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { Trophy, X } from "lucide-react";
+
+const TEAMS = [
+  { name: "Arsenal",       crest: "https://crests.football-data.org/57.svg",  odds: 3.5 },
+  { name: "Chelsea",       crest: "https://crests.football-data.org/61.svg",  odds: 6.0 },
+  { name: "Manchester United",  crest: "https://crests.football-data.org/66.svg",  odds: 8.0 },
+  { name: "Manchester City",    crest: "https://crests.football-data.org/65.svg",  odds: 2.5 },
+  { name: "Aston Villa",   crest: "https://crests.football-data.org/58.svg",  odds: 12.0 },
+  { name: "Liverpool",     crest: "https://crests.football-data.org/64.svg",  odds: 2.8 },
+];
+
+interface Props {
+  userId: string | null;
+  balance: number;
+  onPlaced: () => void;
+  onRequireAuth: () => void;
+}
+
+export const ChampionPredictionModal = ({ userId, balance, onPlaced, onRequireAuth }: Props) => {
+  const [open, setOpen] = useState(false);
+  const [pick, setPick] = useState<typeof TEAMS[0] | null>(null);
+  const [stake, setStake] = useState("100");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!userId) {
+      // Show to logged-out visitors too
+      const t = setTimeout(() => setOpen(true), 1200);
+      return () => clearTimeout(t);
+    }
+    // Check if user has placed a champion pick
+    supabase.from("champion_picks").select("id").eq("user_id", userId).maybeSingle()
+      .then(({ data }) => {
+        if (!data) {
+          const t = setTimeout(() => setOpen(true), 1200);
+          return () => clearTimeout(t);
+        }
+      });
+  }, [userId]);
+
+  const submit = async () => {
+    if (!userId) { setOpen(false); onRequireAuth(); return; }
+    if (!pick) return toast.error("Select a team");
+    const amt = Number(stake);
+    if (!amt || amt < 50) return toast.error("Minimum stake is KSH 50");
+    if (amt > balance) return toast.error("Insufficient balance — deposit first");
+
+    setLoading(true);
+    const potential = Math.round(amt * pick.odds);
+
+    // Deduct from balance
+    const { data: prof } = await supabase.from("profiles").select("balance").eq("user_id", userId).maybeSingle();
+    if (!prof || Number(prof.balance) < amt) {
+      setLoading(false);
+      return toast.error("Insufficient balance");
+    }
+    await supabase.from("profiles").update({ balance: Number(prof.balance) - amt }).eq("user_id", userId);
+
+    // Create bet record
+    const { data: bet } = await supabase.from("bets").insert({
+      user_id: userId,
+      bet_type: "champion",
+      stake: amt,
+      odds: pick.odds,
+      total_odds: pick.odds,
+      potential_payout: potential,
+      team: pick.name,
+      status: "pending",
+    }).select().single();
+
+    const { error } = await supabase.from("champion_picks").insert({
+      user_id: userId,
+      team: pick.name,
+      stake: amt,
+      odds: pick.odds,
+      potential_payout: potential,
+      bet_id: bet?.id,
+    });
+
+    await supabase.from("wallet_transactions").insert({
+      user_id: userId, type: "bet", amount: -amt,
+      description: `Champion pick · ${pick.name} @ ${pick.odds}`,
+    });
+
+    setLoading(false);
+    if (error) return toast.error(error.message);
+    toast.success(`Pick placed: ${pick.name} for the title!`);
+    setOpen(false);
+    onPlaced();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="glass-strong border-glass-border max-w-2xl rounded-3xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-2xl">
+            <Trophy className="h-6 w-6 text-accent" />
+            Who will win the Premier League?
+          </DialogTitle>
+        </DialogHeader>
+        <p className="text-sm text-muted-foreground -mt-2">
+          Place your bet on the champion. Select your team and predict the winning side.
+        </p>
+
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 mt-2">
+          {TEAMS.map((t) => {
+            const selected = pick?.name === t.name;
+            return (
+              <button
+                key={t.name}
+                onClick={() => setPick(t)}
+                className={`glass rounded-2xl p-4 text-center transition hover:border-primary/50 ${selected ? "ring-2 ring-accent" : ""}`}
+              >
+                <img src={t.crest} alt={t.name} className="mx-auto h-12 w-12" />
+                <div className="mt-2 text-sm font-semibold">{t.name}</div>
+                <div className="text-xs text-accent font-bold">@ {t.odds.toFixed(2)}</div>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-2 grid grid-cols-[1fr_auto] gap-2">
+          <Input
+            type="number"
+            value={stake}
+            onChange={(e) => setStake(e.target.value)}
+            placeholder="Stake (KSH)"
+            className="glass h-12"
+          />
+          <Button onClick={submit} variant="hero" size="lg" disabled={loading || !pick}>
+            {loading ? "Placing…" : pick ? `Win KSH ${Math.round(Number(stake || 0) * pick.odds).toLocaleString()}` : "Pick a team"}
+          </Button>
+        </div>
+
+        <button
+          onClick={() => setOpen(false)}
+          className="absolute right-4 top-4 rounded-full p-1.5 text-muted-foreground hover:bg-background/50"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </DialogContent>
+    </Dialog>
+  );
+};

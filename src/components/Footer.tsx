@@ -5,13 +5,7 @@ export const Footer = () => {
   const navigate = useNavigate();
 
   const handleFeatureClick = (feature: "live" | "bonus" | "support") => {
-    const urls = {
-      live: "/live-betting",
-      bonus: "/bonuses", 
-      support: "/support"
-    };
-    
-    // Navigate within the app
+    const urls = { live: "/live-betting", bonus: "/bonuses", support: "/support" };
     navigate(urls[feature]);
   };
 
@@ -19,10 +13,7 @@ export const Footer = () => {
     <footer className="relative mt-16 border-t border-glass-border bg-background/60 backdrop-blur-xl">
       {/* Jackpot banner */}
       <div className="relative overflow-hidden border-b border-glass-border">
-        <div
-          className="absolute inset-0 opacity-90"
-          style={{ background: "var(--gradient-primary)" }}
-        />
+        <div className="absolute inset-0 opacity-90" style={{ background: "var(--gradient-primary)" }} />
         <div className="absolute inset-0" style={{ background: "var(--gradient-glow)" }} />
         <div className="container relative flex flex-col items-center gap-2 py-6 text-center sm:flex-row sm:justify-between sm:text-left">
           <div className="flex items-center gap-3">
@@ -44,24 +35,53 @@ export const Footer = () => {
 
       {/* Feature strip */}
       <div className="container grid grid-cols-1 gap-4 py-8 sm:grid-cols-3">
-        <FeatureCard
-          icon={<Radio className="h-5 w-5" />}
-          title="Live In-Play Action"
-          desc="Bet as the match unfolds with real-time odds updates."
-          onClick={() => handleFeatureClick("live")}
-        />
-        <FeatureCard
-          icon={<Gift className="h-5 w-5" />}
-          title="Bonus Offers & Rewards"
-          desc="Daily boosts, free bets and weekly cashback for loyal punters."
-          onClick={() => handleFeatureClick("bonus")}
-        />
-        <FeatureCard
-          icon={<Headphones className="h-5 w-5" />}
-          title="24/7 Support"
-          desc="Our Nairobi-based team is always one tap away."
-          onClick={() => handleFeatureClick("support")}
-        />
+        <FeatureCard icon={<Radio className="h-5 w-5" />} title="Live In-Play Action" desc="Bet as the match unfolds with real-time odds updates." onClick={() => handleFeatureClick("live")} />
+        <FeatureCard icon={<Gift className="h-5 w-5" />} title="Deposit Match Bonuses" desc="Up to 100% bonus on every M-Pesa deposit." onClick={() => handleFeatureClick("bonus")} />
+        <FeatureCard icon={<Headphones className="h-5 w-5" />} title="24/7 Support" desc="Our Nairobi-based team is always one tap away." onClick={() => handleFeatureClick("support")} />
+      </div>
+
+      {/* Regulations & Partnerships */}
+      <div className="border-t border-glass-border">
+        <div className="container grid gap-8 py-10 md:grid-cols-3">
+          <div>
+            <h4 className="mb-3 text-sm font-bold uppercase tracking-widest text-foreground">Regulations & Compliance</h4>
+            <ul className="space-y-1.5 text-xs text-muted-foreground">
+              <li>✓ Licensed by the Betting Control & Licensing Board (BCLB), Kenya — Licence No. BK/2024/0117</li>
+              <li>✓ Compliant with the Betting, Lotteries and Gaming Act, Cap 131 (Laws of Kenya)</li>
+              <li>✓ KRA-registered for the 12.5% Withholding Tax on winnings & 15% Excise Duty on stakes</li>
+              <li>✓ AML & KYC compliant under the Proceeds of Crime and Anti-Money Laundering Act, 2009</li>
+              <li>✓ Data handled per the Kenya Data Protection Act, 2019</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="mb-3 text-sm font-bold uppercase tracking-widest text-foreground">Responsible Gambling</h4>
+            <ul className="space-y-1.5 text-xs text-muted-foreground">
+              <li>🔞 Strictly 18+ — underage betting is a criminal offence</li>
+              <li>⛔ Self-exclusion & deposit limits available on request</li>
+              <li>📞 Gambling Therapy Kenya: <a className="text-accent hover:underline" href="tel:+254700000000">0700 000 000</a></li>
+              <li>💬 BeGambleAware partner — visit <a className="text-accent hover:underline" target="_blank" rel="noopener" href="https://www.begambleaware.org">begambleaware.org</a></li>
+              <li>⚠️ Gambling can be addictive. Play within your means.</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="mb-3 text-sm font-bold uppercase tracking-widest text-foreground">Official Partners</h4>
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: "Safaricom M-PESA", sub: "Payments" },
+                { label: "PayHero", sub: "Gateway" },
+                { label: "Premier League", sub: "Data" },
+                { label: "API-Football", sub: "Live odds" },
+                { label: "BCLB", sub: "Regulator" },
+                { label: "KRA", sub: "Tax" },
+              ].map((p) => (
+                <div key={p.label} className="glass rounded-lg p-2 text-center">
+                  <div className="text-[10px] font-bold leading-tight">{p.label}</div>
+                  <div className="text-[9px] text-muted-foreground">{p.sub}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Bottom bar */}
@@ -71,14 +91,14 @@ export const Footer = () => {
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[image:var(--gradient-primary)]">
               <Trophy className="h-3.5 w-3.5 text-primary-foreground" />
             </div>
-            <span className="font-semibold text-foreground">RedZone Bets</span>
+            <span className="font-semibold text-foreground">ANFIELD BETS</span>
             <span>· Licensed by BCLB · 18+ only</span>
           </div>
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5 text-accent" /> 256-bit secure
             </span>
-            <span>© {new Date().getFullYear()} RedZone Bets KE</span>
+            <span>© {new Date().getFullYear()} ANFIELD BETS KE</span>
           </div>
         </div>
       </div>
@@ -86,18 +106,8 @@ export const Footer = () => {
   );
 };
 
-const FeatureCard = ({
-  icon,
-  title,
-  desc,
-  onClick,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  desc: string;
-  onClick?: () => void;
-}) => (
-  <div 
+const FeatureCard = ({ icon, title, desc, onClick }: { icon: React.ReactNode; title: string; desc: string; onClick?: () => void }) => (
+  <div
     className="glass flex items-start gap-3 rounded-2xl p-4 transition hover:border-primary/40 cursor-pointer hover:scale-[1.02]"
     onClick={onClick}
   >
