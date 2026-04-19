@@ -9,11 +9,20 @@ interface AuthModalProps {
   onClose?: () => void;
 }
 
+const normalizePhone = (raw: string) => {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.startsWith("254") && digits.length === 12) return digits;
+  if (digits.startsWith("0") && digits.length === 10) return "254" + digits.slice(1);
+  if (digits.startsWith("7") && digits.length === 9) return "254" + digits;
+  return null;
+};
+
 export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
 
   const submit = async (e: React.FormEvent) => {
@@ -22,16 +31,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
     try {
       if (mode === "signup") {
         if (password.length < 6) throw new Error("Password must be at least 6 characters");
+        const normalized = normalizePhone(phone);
+        if (!normalized) throw new Error("Enter a valid Kenyan phone (07XXXXXXXX or 2547XXXXXXXX)");
+
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/`,
-            data: { username },
+            data: { username, phone: normalized },
           },
         });
         if (error) throw error;
-        // Sign user out so they must explicitly sign in
         await supabase.auth.signOut();
         toast.success("Registration successful! Please sign in to continue.");
         setMode("signin");
@@ -51,8 +62,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div 
-        className="absolute inset-0 bg-background/70 backdrop-blur-md" 
+      <div
+        className="absolute inset-0 bg-background/60 backdrop-blur-sm"
         onClick={onClose}
       />
       <div className="glass-strong relative w-full max-w-md rounded-3xl p-8 animate-float-up">
@@ -66,24 +77,35 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         )}
         <div className="mb-6 text-center">
           <div className="mx-auto mb-3 inline-flex items-center gap-2 rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-primary">
-            <span className="live-dot" /> RedZone Bets
+            <span className="live-dot" /> ANFIELD BETS
           </div>
           <h2 className="text-3xl font-bold">{mode === "signin" ? "Welcome back" : "Create your account"}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {mode === "signin" ? "Sign in to place your bets." : "Join in seconds. KSH wallet included."}
+            {mode === "signin" ? "Sign in to place your bets." : "Register with your M-Pesa number."}
           </p>
         </div>
 
         <form onSubmit={submit} className="space-y-3">
           {mode === "signup" && (
-            <Input
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              maxLength={30}
-              className="glass border-glass-border h-12"
-            />
+            <>
+              <Input
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                maxLength={30}
+                className="glass border-glass-border h-12"
+              />
+              <Input
+                type="tel"
+                placeholder="M-Pesa phone (07XXXXXXXX)"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+                maxLength={13}
+                className="glass border-glass-border h-12"
+              />
+            </>
           )}
           <Input
             type="email"
@@ -116,7 +138,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         </button>
 
         <p className="mt-4 text-center text-[11px] text-muted-foreground/70">
-          🔒 Secured with 256-bit encryption · M-Pesa ready
+          🔒 Licensed by BCLB · 18+ only · Bet responsibly
         </p>
       </div>
     </div>
