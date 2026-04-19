@@ -28,17 +28,32 @@ Deno.serve(async (req) => {
 
     const { phone, amount, type = "deposit" } = await req.json();
     const amt = Number(amount);
-    if (!amt || amt < 10) return json({ error: "Minimum KSH 10" }, 400);
+    const minAmt = type === "deposit" ? 100 : 50;
+    if (!amt || amt < minAmt) return json({ error: `Minimum ${type} is KSH ${minAmt}` }, 400);
     if (!/^(?:\+?254|0)?(7\d{8})$/.test(String(phone))) return json({ error: "Invalid phone" }, 400);
 
     // Normalize to 2547XXXXXXXX
     const normalized = String(phone).replace(/^(\+?254|0)/, "254");
 
-    // For withdraw, validate balance
+    // For withdraw, validate balance & 1000 KSH lock
     if (type === "withdraw") {
       const { data: prof } = await supabase
         .from("profiles").select("balance").eq("user_id", user.id).maybeSingle();
-      if (!prof || Number(prof.balance) < amt) return json({ error: "Insufficient balance" }, 400);
+      const bal = Number(prof?.balance ?? 0);
+      if (bal < 1000) return json({ error: "Withdrawals locked until balance reaches KSH 1,000" }, 400);
+      if (bal < amt) return json({ error: "Insufficient balance" }, 400);
+    }
+
+    // Block duplicate pending requests (prevents double STK pushes)
+    const { data: pendingDup } = await supabase
+      .from("stk_requests")
+      .select("id, created_at")
+      .eq("user_id", user.id)
+      .eq("status", "pending")
+      .gte("created_at", new Date(Date.now() - 90_000).toISOString())
+      .limit(1);
+    if (pendingDup && pendingDup.length > 0) {
+      return json({ error: "You have a pending M-Pesa request. Wait for it to complete or expire." }, 429);
     }
 
     const externalRef = `ANFIELD BETS-${Date.now()}-${user.id.slice(0, 8)}`;
