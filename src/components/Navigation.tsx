@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Trophy, Calendar, Users, Table, Menu, X, Radio, Receipt, Gift } from 'lucide-react';
+import logo from '@/assets/logo.jpeg';
 
 const Navigation: React.FC = () => {
   const location = useLocation();
@@ -24,9 +25,7 @@ const Navigation: React.FC = () => {
           {/* Logo and Brand */}
           <div className="flex items-center gap-2">
             <Link to="/" className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[image:var(--gradient-primary)] shadow-[var(--shadow-glow)]">
-                <Trophy className="h-4 w-4 text-primary-foreground" />
-              </div>
+              <img src={logo} alt="ANFIELD BETS" className="h-10 w-10 rounded-xl object-cover shadow-[var(--shadow-glow)]" />
               <div>
                 <div className="text-base font-bold leading-none">ANFIELD BETS</div>
                 <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">

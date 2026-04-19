@@ -76,6 +76,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
           </button>
         )}
         <div className="mb-6 text-center">
+          <img src={(await import("@/assets/logo.jpeg")).default} alt="" className="mx-auto mb-3 h-16 w-16 rounded-2xl object-cover shadow-[var(--shadow-glow)]" />
           <div className="mx-auto mb-3 inline-flex items-center gap-2 rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-primary">
             <span className="live-dot" /> ANFIELD BETS
           </div>

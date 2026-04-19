@@ -1,5 +1,6 @@
 import { Trophy, Radio, Gift, Headphones, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import logo from "@/assets/logo.jpeg";
 
 export const Footer = () => {
   const navigate = useNavigate();
@@ -88,9 +89,7 @@ export const Footer = () => {
       <div className="border-t border-glass-border">
         <div className="container flex flex-col items-center justify-between gap-3 py-5 text-xs text-muted-foreground sm:flex-row">
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[image:var(--gradient-primary)]">
-              <Trophy className="h-3.5 w-3.5 text-primary-foreground" />
-            </div>
+            <img src={logo} alt="ANFIELD BETS" className="h-7 w-7 rounded-lg object-cover" />
             <span className="font-semibold text-foreground">ANFIELD BETS</span>
             <span>· Licensed by BCLB · 18+ only</span>
           </div>
