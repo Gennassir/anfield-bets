@@ -100,7 +100,7 @@ const Index = () => {
         <section className="mb-8 animate-float-up">
           <p className="text-xs uppercase tracking-[0.3em] text-primary">Premier League · Live</p>
           <h1 className="mt-2 text-4xl font-bold sm:text-5xl">
-            ANFIELD <span className="text-accent">BETS</span>
+            EPL <span className="text-accent">BETS</span>
           </h1>
           <div className="mt-4 flex flex-wrap gap-2">
             <Link to="/live-betting"><Button variant="hero"><Radio className="h-4 w-4 mr-2" />Bet Live</Button></Link>

@@ -27,7 +27,7 @@ const Navigation: React.FC = () => {
             <Link to="/" className="flex items-center gap-2">
               <img src={logo} alt="ANFIELD BETS" className="h-10 w-10 rounded-xl object-cover shadow-[var(--shadow-glow)]" />
               <div>
-                <div className="text-base font-bold leading-none">ANFIELD BETS</div>
+                <div className="text-base font-bold leading-none">PREMIER LEAGUE BETS</div>
                 <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">
                   <span className="live-dot" /> Premier League · Live
                 </div>
