@@ -67,7 +67,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         className="absolute inset-0 bg-background/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="glass-strong relative w-full max-w-md rounded-3xl p-8 animate-float-up">
+      <div className="glass-strong relative w-full max-w-md max-h-[92vh] overflow-y-auto rounded-2xl sm:rounded-3xl p-5 sm:p-8 animate-float-up">
         {onClose && (
           <button
             onClick={onClose}
@@ -81,7 +81,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
           <div className="mx-auto mb-3 inline-flex items-center gap-2 rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-primary">
             <span className="live-dot" /> ANFIELD BETS
           </div>
-          <h2 className="text-3xl font-bold">{mode === "signin" ? "Welcome back" : "Create your account"}</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold">{mode === "signin" ? "Welcome back" : "Create your account"}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {mode === "signin" ? "Sign in to place your bets." : "Register with your M-Pesa number."}
           </p>

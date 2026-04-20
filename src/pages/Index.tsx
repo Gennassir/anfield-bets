@@ -68,7 +68,7 @@ const Index = () => {
       <Navigation />
 
       <div className="sticky top-16 z-40 border-b border-glass-border bg-background/40 backdrop-blur-md">
-        <div className="container flex h-14 items-center justify-end gap-2 px-4">
+        <div className="container flex h-auto min-h-14 flex-wrap items-center justify-end gap-2 px-3 py-2 sm:px-4">
           {session && phone && (
             <span className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground mr-2">
               <Phone className="h-3 w-3 text-accent" /> {phone}
@@ -76,20 +76,20 @@ const Index = () => {
           )}
           <button
             onClick={() => requireAuth(() => { setWalletMode("deposit"); setWalletOpen(true); })}
-            className="glass flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-semibold transition hover:border-primary/50"
+            className="glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs sm:text-sm font-semibold transition hover:border-primary/50"
           >
             <Wallet className="h-4 w-4 text-accent" />
             <span className="text-muted-foreground">KSH</span>
             <span>{balance.toLocaleString()}</span>
           </button>
-          <Button size="sm" variant="hero" onClick={() => openWallet("deposit")} className="h-9">
-            <ArrowDownToLine className="h-4 w-4 mr-1.5" />Deposit
+          <Button size="sm" variant="hero" onClick={() => openWallet("deposit")} className="h-9 px-3">
+            <ArrowDownToLine className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Deposit</span>
           </Button>
-          <Button size="sm" variant="outline" onClick={() => openWallet("withdraw")} className="h-9">
-            <ArrowUpFromLine className="h-4 w-4 mr-1.5" />Withdraw
+          <Button size="sm" variant="outline" onClick={() => openWallet("withdraw")} className="h-9 px-3">
+            <ArrowUpFromLine className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Withdraw</span>
           </Button>
           {session && (
-            <Button variant="ghost" size="sm" onClick={() => supabase.auth.signOut()}>
+            <Button variant="ghost" size="sm" onClick={() => supabase.auth.signOut()} className="h-9 px-2">
               <LogOut className="h-4 w-4" />
             </Button>
           )}
