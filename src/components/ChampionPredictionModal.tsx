@@ -87,7 +87,7 @@ export const ChampionPredictionModal = ({ userId, balance, onPlaced, onRequireAu
 
     await supabase.from("wallet_transactions").insert({
       user_id: userId, type: "bet", amount: -amt,
-      description: `Champion pick · ${pick.name} @ ${pick.odds}`,
+      description: `Champion pick · ${pick.name} ${pick.odds}`,
     });
 
     setLoading(false);
@@ -121,7 +121,7 @@ export const ChampionPredictionModal = ({ userId, balance, onPlaced, onRequireAu
               >
                 <img src={t.crest} alt={t.name} className="mx-auto h-12 w-12" />
                 <div className="mt-2 text-sm font-semibold">{t.name}</div>
-                <div className="text-xs text-accent font-bold">@ {t.odds.toFixed(2)}</div>
+                <div className="text-xs text-accent font-bold">{t.odds.toFixed(2)}</div>
               </button>
             );
           })}
