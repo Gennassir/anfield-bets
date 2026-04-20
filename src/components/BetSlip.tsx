@@ -21,7 +21,7 @@ export const BetSlip = ({ selections, stake, onStakeChange, onRemove, onPlace, p
   const belowMin = stake < 100;
 
   return (
-    <aside className="glass-strong sticky top-6 flex max-h-[calc(100vh-3rem)] flex-col rounded-3xl p-5">
+    <aside className="glass-strong lg:sticky lg:top-6 flex max-h-[calc(100vh-3rem)] flex-col rounded-2xl sm:rounded-3xl p-4 sm:p-5">
       <div className="mb-4 flex items-center gap-2">
         <Receipt className="h-5 w-5 text-primary" />
         <h3 className="text-lg font-bold">Bet Slip</h3>

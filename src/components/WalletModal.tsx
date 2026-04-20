@@ -130,10 +130,10 @@ export const WalletModal = ({ open, onOpenChange, userId, balance, onUpdated, in
 
   return (
     <Dialog open={open} onOpenChange={(o) => !waiting && onOpenChange(o)}>
-      <DialogContent className="glass-strong border-glass-border max-w-md rounded-3xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-2xl">
-            <Smartphone className="h-5 w-5 text-accent" /> M-Pesa · ANFIELD BETS
+      <DialogContent className="glass-strong border-glass-border w-[calc(100vw-1rem)] max-w-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 max-h-[92vh] overflow-y-auto">
+        <DialogHeader className="pr-8">
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-2xl">
+            <Smartphone className="h-5 w-5 text-accent shrink-0" /> <span className="truncate">M-Pesa · ANFIELD BETS</span>
           </DialogTitle>
         </DialogHeader>
 

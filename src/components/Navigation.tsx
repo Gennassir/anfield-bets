@@ -23,13 +23,13 @@ const Navigation: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo and Brand */}
-          <div className="flex items-center gap-2">
-            <Link to="/" className="flex items-center gap-2">
-              <img src={logo} alt="ANFIELD BETS" className="h-10 w-10 rounded-xl object-cover shadow-[var(--shadow-glow)]" />
-              <div>
-                <div className="text-base font-bold leading-none">PREMIER LEAGUE BETS</div>
-                <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-muted-foreground">
-                  <span className="live-dot" /> Premier League · Live
+          <div className="flex min-w-0 items-center gap-2">
+            <Link to="/" className="flex min-w-0 items-center gap-2">
+              <img src={logo} alt="ANFIELD BETS" className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-xl object-cover shadow-[var(--shadow-glow)]" />
+              <div className="min-w-0">
+                <div className="truncate text-sm sm:text-base font-bold leading-none">PREMIER LEAGUE BETS</div>
+                <div className="mt-0.5 flex items-center gap-1.5 text-[9px] sm:text-[10px] uppercase tracking-widest text-muted-foreground">
+                  <span className="live-dot" /> <span className="truncate">Premier League · Live</span>
                 </div>
               </div>
             </Link>
