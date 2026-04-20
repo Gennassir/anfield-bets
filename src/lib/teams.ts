@@ -7,12 +7,12 @@ export type Team = {
 };
 
 export const teams: Team[] = [
-  { id: "ars", name: "Arsenal", short: "ARS", color: "0 85% 55%", odds: 3.4 },
-  { id: "mci", name: "Manchester City", short: "MCI", color: "200 85% 55%", odds: 2.1 },
-  { id: "liv", name: "Liverpool", short: "LIV", color: "0 90% 45%", odds: 3.2 },
+  { id: "ars", name: "Arsenal", short: "ARS", color: "0 85% 55%", odds: 13 },
+  { id: "mci", name: "Manchester City", short: "MCI", color: "200 85% 55%", odds: 10 },
+  { id: "liv", name: "Liverpool", short: "LIV", color: "0 90% 45%", odds: 17 },
   { id: "che", name: "Chelsea", short: "CHE", color: "220 85% 50%", odds: 5.5 },
-  { id: "mun", name: "Manchester United", short: "MUN", color: "5 85% 50%", odds: 6.0 },
-  { id: "tot", name: "Tottenham", short: "TOT", color: "210 30% 90%", odds: 7.5 },
-  { id: "new", name: "Newcastle", short: "NEW", color: "0 0% 95%", odds: 9.0 },
-  { id: "ast", name: "Aston Villa", short: "AVL", color: "320 60% 35%", odds: 12.0 },
+  { id: "mun", name: "Manchester United", short: "MUN", color: "5 85% 50%", odds: 15 },
+  { id: "tot", name: "Tottenham", short: "TOT", color: "210 30% 90%", odds: 22 },
+  { id: "new", name: "Newcastle", short: "NEW", color: "0 0% 95%", odds: 20 },
+  { id: "ast", name: "Aston Villa", short: "AVL", color: "320 60% 35%", odds: 18 },
 ];
