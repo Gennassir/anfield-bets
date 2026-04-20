@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Smartphone, ArrowDownToLine, ArrowUpFromLine, Loader2, Lock } from "lucide-react";
+import { Smartphone, ArrowDownToLine, ArrowUpFromLine, Loader2, Lock, X } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -129,7 +129,7 @@ export const WalletModal = ({ open, onOpenChange, userId, balance, onUpdated, in
   const withdrawLocked = mode === "withdraw" && balance < MIN_WITHDRAW_BALANCE;
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !waiting && onOpenChange(o)}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="glass-strong border-glass-border w-[calc(100vw-1rem)] max-w-md rounded-2xl sm:rounded-3xl p-4 sm:p-6 max-h-[92vh] overflow-y-auto">
         <DialogHeader className="pr-8">
           <DialogTitle className="flex items-center gap-2 text-lg sm:text-2xl">
@@ -138,7 +138,7 @@ export const WalletModal = ({ open, onOpenChange, userId, balance, onUpdated, in
         </DialogHeader>
 
         {waiting ? (
-          <div className="flex flex-col items-center gap-4 py-8 text-center">
+          <div className="flex flex-col items-center gap-4 py-6 text-center">
             <Loader2 className="h-10 w-10 animate-spin text-accent" />
             <div>
               <p className="font-semibold">Waiting for M-Pesa confirmation…</p>
@@ -148,9 +148,20 @@ export const WalletModal = ({ open, onOpenChange, userId, balance, onUpdated, in
                   : "Withdrawal is being processed by Safaricom."}
               </p>
               <p className="mt-3 text-[10px] uppercase tracking-widest text-muted-foreground">
-                Times out in 90 seconds
+                Times out in 30 seconds
               </p>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setWaiting(false);
+                setPendingStkId(null);
+                toast.message("Cancelled. If you already entered your PIN, the payment may still complete.");
+              }}
+            >
+              <X className="h-4 w-4 mr-1.5" /> Cancel
+            </Button>
           </div>
         ) : (
           <>
