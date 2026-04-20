@@ -99,35 +99,43 @@ export const ChampionPredictionModal = ({ userId, balance, onPlaced, onRequireAu
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="glass-strong border-glass-border max-w-2xl rounded-3xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-2xl">
-            <Trophy className="h-6 w-6 text-accent" />
-            Who will win the Premier League?
+      <DialogContent className="glass-strong border-glass-border w-[calc(100vw-1rem)] max-w-2xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 max-h-[92vh] overflow-y-auto">
+        <button
+          onClick={() => setOpen(false)}
+          aria-label="Close"
+          className="absolute right-3 top-3 z-50 rounded-full bg-background/80 p-2 text-foreground shadow-lg ring-1 ring-glass-border hover:bg-background"
+        >
+          <X className="h-4 w-4" />
+        </button>
+
+        <DialogHeader className="pr-10">
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-2xl">
+            <Trophy className="h-5 w-5 sm:h-6 sm:w-6 text-accent shrink-0" />
+            <span>Who will win the Premier League?</span>
           </DialogTitle>
         </DialogHeader>
-        <p className="text-sm text-muted-foreground -mt-2">
+        <p className="text-xs sm:text-sm text-muted-foreground -mt-2">
           Place your bet on the champion. Select your team and predict the winning side.
         </p>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 mt-2">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 mt-2">
           {TEAMS.map((t) => {
             const selected = pick?.name === t.name;
             return (
               <button
                 key={t.name}
                 onClick={() => setPick(t)}
-                className={`glass rounded-2xl p-4 text-center transition hover:border-primary/50 ${selected ? "ring-2 ring-accent" : ""}`}
+                className={`glass rounded-2xl p-3 sm:p-4 text-center transition hover:border-primary/50 ${selected ? "ring-2 ring-accent" : ""}`}
               >
-                <img src={t.crest} alt={t.name} className="mx-auto h-12 w-12" />
-                <div className="mt-2 text-sm font-semibold">{t.name}</div>
+                <img src={t.crest} alt={t.name} className="mx-auto h-10 w-10 sm:h-12 sm:w-12" />
+                <div className="mt-2 text-xs sm:text-sm font-semibold leading-tight">{t.name}</div>
                 <div className="text-xs text-accent font-bold">{t.odds.toFixed(2)}</div>
               </button>
             );
           })}
         </div>
 
-        <div className="mt-2 grid grid-cols-[1fr_auto] gap-2">
+        <div className="mt-2 flex flex-col gap-2 sm:grid sm:grid-cols-[1fr_auto]">
           <Input
             type="number"
             value={stake}
@@ -135,17 +143,10 @@ export const ChampionPredictionModal = ({ userId, balance, onPlaced, onRequireAu
             placeholder="Stake (KSH)"
             className="glass h-12"
           />
-          <Button onClick={submit} variant="hero" size="lg" disabled={loading || !pick}>
+          <Button onClick={submit} variant="hero" size="lg" disabled={loading || !pick} className="w-full sm:w-auto">
             {loading ? "Placing…" : pick ? `Win KSH ${Math.round(Number(stake || 0) * pick.odds).toLocaleString()}` : "Pick a team"}
           </Button>
         </div>
-
-        <button
-          onClick={() => setOpen(false)}
-          className="absolute right-4 top-4 rounded-full p-1.5 text-muted-foreground hover:bg-background/50"
-        >
-          <X className="h-4 w-4" />
-        </button>
       </DialogContent>
     </Dialog>
   );
