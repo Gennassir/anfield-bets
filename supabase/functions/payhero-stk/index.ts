@@ -28,19 +28,18 @@ Deno.serve(async (req) => {
 
     const { phone, amount, type = "deposit" } = await req.json();
     const amt = Number(amount);
-    const minAmt = type === "deposit" ? 100 : 50;
+    const minAmt = type === "deposit" ? 100 : 100;
     if (!amt || amt < minAmt) return json({ error: `Minimum ${type} is KSH ${minAmt}` }, 400);
     if (!/^(?:\+?254|0)?(7\d{8})$/.test(String(phone))) return json({ error: "Invalid phone" }, 400);
 
     // Normalize to 2547XXXXXXXX
     const normalized = String(phone).replace(/^(\+?254|0)/, "254");
 
-    // For withdraw, validate balance & 1000 KSH lock
+    // For withdraw, validate balance
     if (type === "withdraw") {
       const { data: prof } = await supabase
         .from("profiles").select("balance").eq("user_id", user.id).maybeSingle();
       const bal = Number(prof?.balance ?? 0);
-      if (bal < 1000) return json({ error: "Withdrawals locked until balance reaches KSH 1,000" }, 400);
       if (bal < amt) return json({ error: "Insufficient balance" }, 400);
     }
 

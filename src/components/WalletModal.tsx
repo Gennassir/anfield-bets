@@ -16,7 +16,8 @@ interface Props {
 }
 
 const MIN_DEPOSIT = 100;
-const MIN_WITHDRAW_BALANCE = 1000;
+const MIN_WITHDRAW_BALANCE = 100;
+const MIN_WITHDRAW_AMOUNT = 100;
 
 export const WalletModal = ({ open, onOpenChange, userId, balance, onUpdated, initialMode = "deposit" }: Props) => {
   const [mode, setMode] = useState<"deposit" | "withdraw">(initialMode);
@@ -104,10 +105,7 @@ export const WalletModal = ({ open, onOpenChange, userId, balance, onUpdated, in
       return toast.error(`Minimum deposit is KSH ${MIN_DEPOSIT}`);
     }
     if (mode === "withdraw") {
-      if (balance < MIN_WITHDRAW_BALANCE) {
-        return toast.error(`Withdrawals are locked until your balance reaches KSH ${MIN_WITHDRAW_BALANCE}`);
-      }
-      if (!amt || amt < 50) return toast.error("Minimum withdrawal is KSH 50");
+      if (!amt || amt < MIN_WITHDRAW_AMOUNT) return toast.error(`Minimum withdrawal is KSH ${MIN_WITHDRAW_AMOUNT}`);
       if (amt > balance) return toast.error("Insufficient balance");
     }
     if (!/^(?:\+?254|0)?7\d{8}$/.test(phone)) return toast.error("Phone must be 07XXXXXXXX or 2547XXXXXXXX");
@@ -126,7 +124,7 @@ export const WalletModal = ({ open, onOpenChange, userId, balance, onUpdated, in
     if (data.stk_id) setPendingStkId(data.stk_id);
   };
 
-  const withdrawLocked = mode === "withdraw" && balance < MIN_WITHDRAW_BALANCE;
+  
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -180,19 +178,6 @@ export const WalletModal = ({ open, onOpenChange, userId, balance, onUpdated, in
               </button>
             </div>
 
-            {withdrawLocked && (
-              <div className="mt-3 flex items-start gap-2 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-xs">
-                <Lock className="h-4 w-4 shrink-0 text-destructive" />
-                <div>
-                  <div className="font-semibold text-destructive">Withdrawals locked</div>
-                  <div className="text-muted-foreground">
-                    Your balance must reach KSH {MIN_WITHDRAW_BALANCE.toLocaleString()} before you can withdraw.
-                    Current: KSH {balance.toLocaleString()}.
-                  </div>
-                </div>
-              </div>
-            )}
-
             <div className="space-y-3 pt-2">
               <div>
                 <label className="mb-1 block text-xs uppercase tracking-wider text-muted-foreground">
@@ -209,7 +194,7 @@ export const WalletModal = ({ open, onOpenChange, userId, balance, onUpdated, in
               </div>
               <div>
                 <label className="mb-1 block text-xs uppercase tracking-wider text-muted-foreground">
-                  Amount (KSH) · min {mode === "deposit" ? MIN_DEPOSIT : 50}
+                  Amount (KSH) · min {mode === "deposit" ? MIN_DEPOSIT : MIN_WITHDRAW_AMOUNT}
                 </label>
                 <Input
                   type="number"
@@ -224,7 +209,7 @@ export const WalletModal = ({ open, onOpenChange, userId, balance, onUpdated, in
                 variant="hero"
                 size="lg"
                 className="w-full"
-                disabled={loading || withdrawLocked}
+                disabled={loading}
               >
                 {loading ? "Sending STK push…" : `Confirm ${mode}`}
               </Button>

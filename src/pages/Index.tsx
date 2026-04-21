@@ -83,10 +83,10 @@ const Index = () => {
             <span>{balance.toLocaleString()}</span>
           </button>
           <Button size="sm" variant="hero" onClick={() => openWallet("deposit")} className="h-9 px-3">
-            <ArrowDownToLine className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Deposit</span>
+            <ArrowDownToLine className="h-4 w-4 mr-1.5" />Deposit
           </Button>
           <Button size="sm" variant="outline" onClick={() => openWallet("withdraw")} className="h-9 px-3">
-            <ArrowUpFromLine className="h-4 w-4 sm:mr-1.5" /><span className="hidden sm:inline">Withdraw</span>
+            <ArrowUpFromLine className="h-4 w-4 mr-1.5" />Withdraw
           </Button>
           {session && (
             <Button variant="ghost" size="sm" onClick={() => supabase.auth.signOut()} className="h-9 px-2">
