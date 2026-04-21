@@ -124,7 +124,7 @@ export const WalletModal = ({ open, onOpenChange, userId, balance, onUpdated, in
     if (data.stk_id) setPendingStkId(data.stk_id);
   };
 
-  const withdrawLocked = mode === "withdraw" && balance < MIN_WITHDRAW_BALANCE;
+  
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
