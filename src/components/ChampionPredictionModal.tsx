@@ -7,14 +7,14 @@ import { toast } from "sonner";
 import { Trophy, X } from "lucide-react";
 
 const TEAMS = [
-  { name: "Manchester City",    crest: "https://crests.football-data.org/65.svg",  odds: 10 },
-  { name: "Arsenal",            crest: "https://crests.football-data.org/57.svg",  odds: 13 },
+  { name: "Manchester City",    crest: "https://crests.football-data.org/65.svg",  odds: 7 },
+  { name: "Arsenal",            crest: "https://crests.football-data.org/57.svg",  odds: 10 },
   { name: "Manchester United",  crest: "https://crests.football-data.org/66.svg",  odds: 15 },
   { name: "Liverpool",          crest: "https://crests.football-data.org/64.svg",  odds: 17 },
   { name: "Aston Villa",        crest: "https://crests.football-data.org/58.svg",  odds: 18 },
   { name: "Newcastle",          crest: "https://crests.football-data.org/67.svg",  odds: 20 },
   { name: "Tottenham",          crest: "https://crests.football-data.org/73.svg",  odds: 22 },
-  { name: "Chelsea",            crest: "https://crests.football-data.org/61.svg",  odds: 5.5 },
+  { name: "Chelsea",            crest: "https://crests.football-data.org/61.svg",  odds: 50 },
 ];
 
 interface Props {
