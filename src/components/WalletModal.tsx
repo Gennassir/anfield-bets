@@ -81,16 +81,25 @@ export const WalletModal = ({ open, onOpenChange, userId, balance, onUpdated, in
       }
     }, 3000);
 
-    // Hard timeout at 90s — STK push expires after ~60s
-    const timeout = setTimeout(() => {
+    // Hard timeout at 30s
+    const timeout = setTimeout(async () => {
       if (cancelled) return;
       cancelled = true;
       clearInterval(interval);
       setWaiting(false);
+      const idToTimeout = pendingStkId;
       setPendingStkId(null);
+      // Mark as cancelled so the user isn't locked out from retrying
+      if (idToTimeout) {
+        await supabase
+          .from("stk_requests")
+          .update({ status: "cancelled", result_desc: "Client timeout" })
+          .eq("id", idToTimeout)
+          .eq("status", "pending");
+      }
       toast.error("Timed out waiting for M-Pesa confirmation. If you completed the payment, your balance will update shortly.");
       onUpdated();
-    }, 90000);
+    }, 30000);
 
     return () => {
       cancelled = true;
