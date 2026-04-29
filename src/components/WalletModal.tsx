@@ -152,9 +152,18 @@ export const WalletModal = ({ open, onOpenChange, userId, balance, onUpdated, in
             <Button
               variant="outline"
               size="sm"
-              onClick={() => {
+              onClick={async () => {
+                const idToCancel = pendingStkId;
                 setWaiting(false);
                 setPendingStkId(null);
+                // Mark the pending request as cancelled so the next deposit isn't blocked
+                if (idToCancel) {
+                  await supabase
+                    .from("stk_requests")
+                    .update({ status: "cancelled", result_desc: "Cancelled by user" })
+                    .eq("id", idToCancel)
+                    .eq("status", "pending");
+                }
                 toast.message("Cancelled. If you already entered your PIN, the payment may still complete.");
               }}
             >
