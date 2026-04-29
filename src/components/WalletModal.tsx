@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Smartphone, ArrowDownToLine, ArrowUpFromLine, Loader2, Lock, X } from "lucide-react";
+import { Smartphone, ArrowDownToLine, ArrowUpFromLine, Loader2, X } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -16,7 +16,6 @@ interface Props {
 }
 
 const MIN_DEPOSIT = 100;
-const MIN_WITHDRAW_BALANCE = 100;
 const MIN_WITHDRAW_AMOUNT = 100;
 
 export const WalletModal = ({ open, onOpenChange, userId, balance, onUpdated, initialMode = "deposit" }: Props) => {
@@ -27,6 +26,13 @@ export const WalletModal = ({ open, onOpenChange, userId, balance, onUpdated, in
   const [pendingStkId, setPendingStkId] = useState<string | null>(null);
   const [waiting, setWaiting] = useState(false);
   const [profilePhone, setProfilePhone] = useState<string>("");
+
+  const cancelPendingRequest = async (id: string | null) => {
+    if (!id) return;
+    await supabase.functions.invoke("payhero-stk", {
+      body: { action: "cancel", stk_id: id },
+    });
+  };
 
   // Load profile phone for autofill
   useEffect(() => {
@@ -89,14 +95,7 @@ export const WalletModal = ({ open, onOpenChange, userId, balance, onUpdated, in
       setWaiting(false);
       const idToTimeout = pendingStkId;
       setPendingStkId(null);
-      // Mark as cancelled so the user isn't locked out from retrying
-      if (idToTimeout) {
-        await supabase
-          .from("stk_requests")
-          .update({ status: "cancelled", result_desc: "Client timeout" })
-          .eq("id", idToTimeout)
-          .eq("status", "pending");
-      }
+      await cancelPendingRequest(idToTimeout);
       toast.error("Timed out waiting for M-Pesa confirmation. If you completed the payment, your balance will update shortly.");
       onUpdated();
     }, 30000);
@@ -165,14 +164,7 @@ export const WalletModal = ({ open, onOpenChange, userId, balance, onUpdated, in
                 const idToCancel = pendingStkId;
                 setWaiting(false);
                 setPendingStkId(null);
-                // Mark the pending request as cancelled so the next deposit isn't blocked
-                if (idToCancel) {
-                  await supabase
-                    .from("stk_requests")
-                    .update({ status: "cancelled", result_desc: "Cancelled by user" })
-                    .eq("id", idToCancel)
-                    .eq("status", "pending");
-                }
+                await cancelPendingRequest(idToCancel);
                 toast.message("Cancelled. If you already entered your PIN, the payment may still complete.");
               }}
             >
