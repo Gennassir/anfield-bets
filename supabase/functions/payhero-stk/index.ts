@@ -43,16 +43,17 @@ Deno.serve(async (req) => {
       if (bal < amt) return json({ error: "Insufficient balance" }, 400);
     }
 
-    // Block duplicate pending requests (prevents double STK pushes)
+    // Block duplicate pending requests within the last 30s (matches client timeout).
+    // Cancelled / failed / success rows do NOT block — users can retry immediately.
     const { data: pendingDup } = await supabase
       .from("stk_requests")
       .select("id, created_at")
       .eq("user_id", user.id)
       .eq("status", "pending")
-      .gte("created_at", new Date(Date.now() - 90_000).toISOString())
+      .gte("created_at", new Date(Date.now() - 30_000).toISOString())
       .limit(1);
     if (pendingDup && pendingDup.length > 0) {
-      return json({ error: "You have a pending M-Pesa request. Wait for it to complete or expire." }, 429);
+      return json({ error: "You already have an M-Pesa prompt in progress. Check your phone or wait a few seconds." }, 429);
     }
 
     const externalRef = `ANFIELD BETS-${Date.now()}-${user.id.slice(0, 8)}`;
