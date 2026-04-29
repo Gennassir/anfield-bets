@@ -26,11 +26,23 @@ Deno.serve(async (req) => {
     );
     if (uErr || !user) return json({ error: "Unauthorized" }, 401);
 
-    const { phone, amount, type = "deposit" } = await req.json();
+    const { phone, amount, type = "deposit", action, stk_id } = await req.json();
+
+    if (action === "cancel") {
+      if (!stk_id) return json({ success: false, error: "Missing payment request" });
+      await supabase
+        .from("stk_requests")
+        .update({ status: "cancelled", result_desc: "Cancelled by user" })
+        .eq("id", stk_id)
+        .eq("user_id", user.id)
+        .eq("status", "pending");
+      return json({ success: true, message: "Payment request cancelled" });
+    }
+
     const amt = Number(amount);
     const minAmt = type === "deposit" ? 100 : 100;
-    if (!amt || amt < minAmt) return json({ error: `Minimum ${type} is KSH ${minAmt}` }, 400);
-    if (!/^(?:\+?254|0)?(7\d{8})$/.test(String(phone))) return json({ error: "Invalid phone" }, 400);
+    if (!amt || amt < minAmt) return json({ success: false, error: `Minimum ${type} is KSH ${minAmt}` });
+    if (!/^(?:\+?254|0)?(7\d{8})$/.test(String(phone))) return json({ success: false, error: "Invalid phone" });
 
     // Normalize to 2547XXXXXXXX
     const normalized = String(phone).replace(/^(\+?254|0)/, "254");
@@ -40,21 +52,16 @@ Deno.serve(async (req) => {
       const { data: prof } = await supabase
         .from("profiles").select("balance").eq("user_id", user.id).maybeSingle();
       const bal = Number(prof?.balance ?? 0);
-      if (bal < amt) return json({ error: "Insufficient balance" }, 400);
+      if (bal < amt) return json({ success: false, error: "Insufficient balance" });
     }
 
-    // Block duplicate pending requests within the last 30s (matches client timeout).
-    // Cancelled / failed / success rows do NOT block — users can retry immediately.
-    const { data: pendingDup } = await supabase
+    // Clear old pending prompts so cancelled/timeouts never block a fresh request.
+    await supabase
       .from("stk_requests")
-      .select("id, created_at")
+      .update({ status: "cancelled", result_desc: "Replaced by a new payment request" })
       .eq("user_id", user.id)
-      .eq("status", "pending")
-      .gte("created_at", new Date(Date.now() - 30_000).toISOString())
-      .limit(1);
-    if (pendingDup && pendingDup.length > 0) {
-      return json({ error: "You already have an M-Pesa prompt in progress. Check your phone or wait a few seconds." }, 429);
-    }
+      .eq("type", type)
+      .eq("status", "pending");
 
     const externalRef = `ANFIELD BETS-${Date.now()}-${user.id.slice(0, 8)}`;
     const callbackUrl = Deno.env.get("PAYHERO_CALLBACK_URL")!;
@@ -73,7 +80,7 @@ Deno.serve(async (req) => {
       })
       .select()
       .single();
-    if (insErr) return json({ error: insErr.message }, 500);
+    if (insErr) return json({ success: false, error: insErr.message });
 
     const endpoint = type === "withdraw" ? "/withdraw" : "/payments";
     const payload = type === "withdraw"
@@ -114,7 +121,7 @@ Deno.serve(async (req) => {
         result_desc: result.error_message || result.message || "PayHero rejected",
         raw_callback: result,
       }).eq("id", stk.id);
-      return json({ error: result.error_message || result.message || "STK push failed" }, 400);
+      return json({ success: false, error: result.error_message || result.message || "STK push failed" });
     }
 
     await supabase.from("stk_requests").update({
